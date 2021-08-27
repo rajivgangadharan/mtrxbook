@@ -1,0 +1,15 @@
+version: "3.9"
+services:
+  blogdown:
+    build: .
+    volumes:
+      - web-vol:/usr/src/www/html
+      - ./inst/extdata:/usr/src/inst/extdata
+  web:
+    image: "nginx:latest"
+    volumes:
+      - web-vol:/usr/share/nginx/html:ro
+    ports:
+      - "8080:80"
+volumes:
+  web-vol: {}
