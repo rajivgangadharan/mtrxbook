@@ -1,4 +1,5 @@
-book_filename: "bookdown-demo"
+book_filename: "mtrxbook-minimal"
+new_session: true
 language:
   ui:
     chapter_name: "Chapter "
