@@ -1,21 +1,9 @@
 # Introduction {#intro}
 
-You can label chapter and section titles using `{#label}` after them, e.g., we can reference Chapter \@ref(intro). If you do not manually label them, there will be automatic labels anyway, e.g., Chapter \@ref(methods).
+The **Portfolio Insights** initiative strives to enable decision making  and risk management grounded in data. It will also help quantify and illustrate value gains to the executive tied to delivery improvement initiatives. 
 
-Figures and tables with captions will be placed in `figure` and `table` environments, respectively.
+## Cycle Time
+Cycle time is the time taken for an individual work item to move from the beginning of the delivery pipeline ("Created Time") to the end of the pipe line ("Closed"). Customers like the cycle time to be as small as possible.
 
-```{r nice-fig, fig.cap='Here is a nice figure!', out.width='80%', fig.asp=.75, fig.align='center'}
-par(mar = c(4, 4, .1, .1))
-plot(pressure, type = 'b', pch = 19)
-```
-
-Reference a figure by its code chunk label with the `fig:` prefix, e.g., see Figure \@ref(fig:nice-fig). Similarly, you can reference tables generated from `knitr::kable()`, e.g., see Table \@ref(tab:nice-tab).
-
-```{r nice-tab, tidy=FALSE}
-knitr::kable(
-  head(iris, 20), caption = 'Here is a nice table!',
-  booktabs = TRUE
-)
-```
-
-You can write citations, too. For example, we are using the **bookdown** package [@R-bookdown] in this sample book, which was built on top of R Markdown and **knitr** [@xie2015].
+## Work in Progress (WiP) {#wip}
+It is the inventory that is held by the system in various unfinished forms. Greater the WiP the greater will be the cycle time. A reduction in WiP will result in a decrease in cycle time.

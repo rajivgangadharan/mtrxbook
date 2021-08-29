@@ -1,1 +1,1 @@
-docker build . -t rajivgangadharan/mtrxbook  --no-cache
+docker build . -t rajivgangadharan/mtrxbook-minimal  --no-cache
