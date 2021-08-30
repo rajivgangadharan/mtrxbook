@@ -1,0 +1,46 @@
+
+# this won't be correct after changing uid
+unset HOME
+
+# for supporting multiple apache2 instances
+if [ "${MTRXBOOK_CONFDIR##${BASE_DIR}/etc/mtrxbook-}" != "${MTRXBOOK_CONFDIR}" ] ; then
+	SUFFIX="-${MTRXBOOK_CONFDIR##${BASE_DIR}/etc/mtrxbook-}"
+else
+	SUFFIX=
+fi
+
+# Since there is no sane way to get the parsed apache2 config in scripts, some
+# settings are defined via environment variables and then used in apache2ctl,
+# ${BASE_DIR}/etc/init.d/apache2, /etc/logrotate.d/apache2, etc.
+export MTRXBOOK_RUN_USER=www-data
+export MTRXBOOK_RUN_GROUP=www-data
+# temporary state file location. This might be changed to /run in Wheezy+1
+export MTRXBOOK_PID_FILE=${BASE_DIR}/var/run/apache2$SUFFIX/apache2.pid
+export MTRXBOOK_RUN_DIR=${BASE_DIR}/var/run/apache2$SUFFIX
+export MTRXBOOK_LOCK_DIR=${BASE_DIR}/var/lock/apache2$SUFFIX
+# Only ${BASE_DIR}/var/log/apache2 is handled by ${BASE_DIR}/etc/logrotate.d/apache2.
+export MTRXBOOK_LOG_DIR=${BASE_DIR}/var/log/apache2$SUFFIX
+
+## The locale used by some modules like mod_dav
+export LANG=C
+## Uncomment the following line to use the system default locale instead:
+#. ${BASE_DIR}/etc/default/locale
+
+export LANG
+
+## The command to get the status for 'apache2ctl status'.
+## Some packages providing 'www-browser' need '--dump' instead of '-dump'.
+#export MTRXBOOK_LYNX='www-browser -dump'
+
+## If you need a higher file descriptor limit, uncomment and adjust the
+## following line (default is 8192):
+#MTRXBOOK_ULIMIT_MAX_FILES='ulimit -n 65536'
+
+## If you would like to pass arguments to the web server, add them below
+## to the MTRXBOOK_ARGUMENTS environment.
+#export MTRXBOOK_ARGUMENTS=''
+
+## Enable the debug mode for maintainer scripts.
+## This will produce a verbose output on package installations of web server modules and web application
+## installations which interact with Apache
+#export MTRXBOOK_MAINTSCRIPT_DEBUG=1
