@@ -4,4 +4,4 @@
 user_name=`id -un`
 data_dir=data
 docker rm portfolio-insights
-docker run --name portfolio-insights -v/home/rajivg/Documents/Work/Code/Datasets:/usr/src/inst/extdata rajivgangadharan/mtrxbook-minimal
+docker run --name portfolio-insights -v/usr/src/inst/extdata:/usr/src/inst/extdata rajivgangadharan/mtrxbook-minimal
