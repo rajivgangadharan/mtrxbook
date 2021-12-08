@@ -12,7 +12,7 @@ source("./R/common.R")
 # Create the tibble
 tib.all <-
   finmetrics::get.FilteredTibble(here::here("inst/extdata",
-                                            "liq_delivery.csv"),
+                                            "gpp_delivery.csv"),
                                  date_from = Sys.Date() - months(12))
 
 tib <- tib.all %>%
@@ -197,7 +197,7 @@ line_plot.InflowOutflow.CumSum(flow.stories.merged)
 ```{r liq-defect-metrics-setup, echo=FALSE, include=TRUE, message=FALSE, warning=FALSE}
 tib_defects.all <-
   finmetrics::get.FilteredTibble(here::here("inst/extdata",
-                                            "liq_defects.csv"),
+                                            "gpp_defects.csv"),
                                  date_from = Sys.Date() - months(12)) %>%
   filter(Type == "Defect")
 
