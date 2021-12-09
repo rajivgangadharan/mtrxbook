@@ -1,6 +1,6 @@
 # Opics
 
-## Delivery Metrics {#opics}
+## Delivery Metrics
 
 
 ```{r opics-setup, include=FALSE}
