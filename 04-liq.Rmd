@@ -1,18 +1,18 @@
-# Global Pay Plus (GPP)
+# Loan IQ (LIQ)
 
 ## Delivery Metrics 
 
 
-```{r gpp-setup, include=FALSE}
+```{r liq-setup, include=FALSE}
 source("./R/common.R")
 ```
 
-```{r gpp-delivery-setup, include=FALSE}
+```{r liq-delivery-setup, include=FALSE}
 
 # Create the tibble
 tib.all <-
   finmetrics::get.FilteredTibble(here::here("inst/extdata",
-                                            "gpp_delivery.csv"),
+                                            "liq_delivery.csv"),
                                  date_from = Sys.Date() - months(12))
 
 tib <- tib.all %>%
@@ -22,11 +22,7 @@ tib <- tib.all %>%
 
 tib.all$Priority <- 
   factor(tib.all$Priority, 
-                           levels=c("Critical",
-                                    "High", 
-                                    "Medium", 
-                                    "Low", 
-                                    "None"), 
+                           levels=c("Critical","High", "Medium", "Low", "None"), 
                            ordered = TRUE)
 
 # Collecting only stories, filtering out abnormalities
@@ -42,32 +38,32 @@ epics.closed <- tib %>% filter(cldt > crdt) %>% filter(Type == "Epic")
 
 The below [Five-number summary](https://en.wikipedia.org/wiki/Five-number_summary) will provide a high level distribution of the cycle times. 
 
-```{r gpp-cycle-time-summ, include=TRUE, out.width='80%', echo=FALSE}
+```{r liq-cycle-time-summ, include=TRUE, out.width='80%', echo=FALSE}
 tabulate.TypeAndPriorityBasedCycleTimeStat(tib)
 ```
 
 #### Epics
 
 
-```{r gpp-epics-cycle-time-trend-fig, include=TRUE, out.width='80%', fig.asp=.75, fig.align='center', fig.cap="Cycle Time Trend", echo=FALSE}
+```{r liq-epics-cycle-time-trend-fig, include=TRUE, out.width='80%', fig.asp=.75, fig.align='center', fig.cap="Cycle Time Trend", echo=FALSE}
 loess_plot.CycleTimeTrend(epics.closed, col_date="crdt")
 ```
 
 
-```{r gpp-epics-summary-metrics, include=TRUE, out.width='80%', echo=FALSE}
+```{r liq-epics-summary-metrics, include=TRUE, out.width='80%', echo=FALSE}
  tabulate.PriorityBasedCycleTimeStat(epics.closed)
 ```
 
 #### Stories
 
-```{r gpp-stories-cycle-time-trend-fig, include=TRUE, out.width='80%', fig.asp=.75, fig.align='center', fig.cap="Cycle Time Trend", echo=FALSE}
+```{r liq-stories-cycle-time-trend-fig, include=TRUE, out.width='80%', fig.asp=.75, fig.align='center', fig.cap="Cycle Time Trend", echo=FALSE}
 
 loess_plot.CycleTimeTrend(stories.closed, col_date="crdt")
 
 ```
 
 
-```{r gpp-story-summary-metrics, include=TRUE, out.width='80%', echo=FALSE}
+```{r liq-story-summary-metrics, include=TRUE, out.width='80%', echo=FALSE}
 
 tabulate.PriorityBasedCycleTimeStat(stories.closed)
 
@@ -77,7 +73,7 @@ tabulate.PriorityBasedCycleTimeStat(stories.closed)
 
 #### Epics
 
-```{r gpp-completed-epics-week-fig, out.width='80%', fig.asp=.75, fig.align='center', fig.cap = "Closed Epics by Week", echo=FALSE}
+```{r liq-completed-epics-week-fig, out.width='80%', fig.asp=.75, fig.align='center', fig.cap = "Closed Epics by Week", echo=FALSE}
 
 line_plot.NumClosed_For_FloorDate(
   gen_ds.NumClosed_For_FloorDate(epics.closed)
@@ -87,7 +83,7 @@ line_plot.NumClosed_For_FloorDate(
 
 The plot below shows the number of epics closed in every week, marked separately in different color based on priority
 
-```{r gpp-epics-wk-agg-fig, include=TRUE, out.width='80%', fig.asp=.75, fig.align='center', echo=FALSE}
+```{r liq-epics-wk-agg-fig, include=TRUE, out.width='80%', fig.asp=.75, fig.align='center', echo=FALSE}
 
 bar_plot.NumClosed_For_FloorDate(
   gen_ds.NumClosed_For_FloorDate(epics.closed, priority_based=TRUE)
@@ -99,7 +95,7 @@ bar_plot.NumClosed_For_FloorDate(
 
 Gives and indication of the densities especially the occurrence of multiple maxima in the data. This can be due to multiple categories of work items which may be investigated further. 
 
-```{r gpp-density-distibution-closed-epics-fig, include=TRUE, echo=FALSE, out.width="80%", fig.align="center", fig.asp=.75, fig.cap="Priority based Density Distribution", message=FALSE, warning=FALSE}
+```{r liq-density-distibution-closed-epics-fig, include=TRUE, echo=FALSE, out.width="80%", fig.align="center", fig.asp=.75, fig.cap="Priority based Density Distribution", message=FALSE, warning=FALSE}
 epics.closed %>% violin_plot.CycleTimeVsPriority(pal_option = 'D')
 ```
 
@@ -110,7 +106,7 @@ epics.closed %>% violin_plot.CycleTimeVsPriority(pal_option = 'D')
 Tells us the number of work items (stories) completed aggregated for each 
 week which is an indication of how stable the throughput is.
 
-```{r gpp-completed-items-week-fig, out.width='80%', fig.asp=.75, fig.align='center', echo=FALSE}
+```{r liq-completed-items-week-fig, out.width='80%', fig.asp=.75, fig.align='center', echo=FALSE}
 
 line_plot.NumClosed_For_FloorDate(
   gen_ds.NumClosed_For_FloorDate(stories.closed)
@@ -121,7 +117,7 @@ line_plot.NumClosed_For_FloorDate(
 The plot below shows the number of stories closed in every week, marked separately in different color based on priority
 
 
-```{r gpp-stories-wk-agg-fig, include=TRUE, out.width='80%', fig.asp=.75, fig.align='center', fig.cap="Number of Stories Closed in a Week colored by Priority", echo=FALSE}
+```{r liq-stories-wk-agg-fig, include=TRUE, out.width='80%', fig.asp=.75, fig.align='center', fig.cap="Number of Stories Closed in a Week colored by Priority", echo=FALSE}
 
 bar_plot.NumClosed_For_FloorDate(
   gen_ds.NumClosed_For_FloorDate(stories.closed, priority_based=TRUE)
@@ -133,7 +129,7 @@ bar_plot.NumClosed_For_FloorDate(
 
 Gives and indication of the densities especially the occurrence of multiple maxima in the data. This can be due to multiple categories of work items which may be investigated further. 
 
-```{r gpp-density-distibution-closed-stories-fig, include=TRUE, echo=FALSE, out.width="80%", fig.align="center", fig.asp=.75, fig.cap="Priority based Density Distribution", message=FALSE, warning=FALSE}
+```{r liq-density-distibution-closed-stories-fig, include=TRUE, echo=FALSE, out.width="80%", fig.align="center", fig.asp=.75, fig.cap="Priority based Density Distribution", message=FALSE, warning=FALSE}
 
 stories.closed %>% violin_plot.CycleTimeVsPriority(pal_option = 'D')
 
@@ -146,13 +142,13 @@ stories.closed %>% violin_plot.CycleTimeVsPriority(pal_option = 'D')
 
 ##### Epics 
 
-```{r gpp-epics-work-in-progress, include=TRUE, echo=FALSE}
+```{r liq-epics-work-in-progress, include=TRUE, echo=FALSE}
 tib_epics_work_in_progress <- tib.all %>%
   dplyr::filter(Type == 'Epic') %>% finmetrics::compute.WIP()
 
 ```
 
-```{r gpp-epics-work-in-progress-fig , include=TRUE, echo=FALSE, out.width='80%', fig.asp=.75, fig.cap="WiP in Days", fig.align='center', cache=TRUE}
+```{r liq-epics-work-in-progress-fig , include=TRUE, echo=FALSE, out.width='80%', fig.asp=.75, fig.cap="WiP in Days", fig.align='center', cache=TRUE}
 ggplot(tib_epics_work_in_progress,
   aes(x = Date, y = WIPInDays)
 ) +
@@ -167,13 +163,13 @@ ggplot(tib_epics_work_in_progress,
 
 ##### Stories
 
-```{r gpp-stories-work-in-progress, include=TRUE, echo=FALSE}
+```{r liq-stories-work-in-progress, include=TRUE, echo=FALSE}
 tib_stories_work_in_progress <- tib.all %>%
   dplyr::filter(Type == 'Story') %>% finmetrics::compute.WIP()
 
 ```
 
-```{r gpp-stories-work-in-progress-fig , include=TRUE, echo=FALSE, out.width='80%', fig.asp=.75, fig.cap="WiP in Days", fig.align='center', cache=TRUE}
+```{r liq-stories-work-in-progress-fig , include=TRUE, echo=FALSE, out.width='80%', fig.asp=.75, fig.cap="WiP in Days", fig.align='center', cache=TRUE}
 ggplot(tib_stories_work_in_progress,
   aes(x = Date, y = WIPInDays)
 ) +
@@ -190,45 +186,45 @@ ggplot(tib_stories_work_in_progress,
 
 ##### Epics
 
-```{r gpp-epics-inflow-outflow, include=TRUE, echo=FALSE, out.width='80%', fig.align="center", fig.asp=.75, eval=TRUE}
+```{r liq-epics-inflow-outflow, include=TRUE, echo=FALSE, out.width='80%', fig.align="center", fig.asp=.75, eval=TRUE}
 flow.epics.merged <- tib.all %>%
   get.InflowOutflowTibble.Epic(include_priority = TRUE)
  bar_plot.InflowOutflow(flow.epics.merged)
 ```
 
-```{r gpp-epics-inflow-outflow-cumsumm, include=TRUE, echo=FALSE, out.width='80%', fig.asp=.75, fig.align="center", eval=TRUE}
+```{r liq-epics-inflow-outflow-cumsumm, include=TRUE, echo=FALSE, out.width='80%', fig.asp=.75, fig.align="center", eval=TRUE}
 line_plot.InflowOutflow.CumSum(flow.epics.merged)
 ```
 
 ##### Stories
 
-```{r gpp-stories-inflow-outflow, include=TRUE, echo=FALSE, out.width='80%', fig.asp=.75, fig.align='center',  eval=TRUE}
+```{r liq-stories-inflow-outflow, include=TRUE, echo=FALSE, out.width='80%', fig.asp=.75, fig.align='center',  eval=TRUE}
 flow.stories.merged <- tib.all %>%
   get.InflowOutflowTibble.Story(include_priority = TRUE)
  bar_plot.InflowOutflow(flow.stories.merged)
 ```
 
-```{r gpp-stories-inflow-outflow-cumsumm, out.width='80%', fig.asp=.75, fig.align='center',include=TRUE, echo=FALSE, eval=TRUE}
+```{r liq-stories-inflow-outflow-cumsumm, out.width='80%', fig.asp=.75, fig.align='center',include=TRUE, echo=FALSE, eval=TRUE}
 line_plot.InflowOutflow.CumSum(flow.stories.merged)
 ```
 
 ## Defect Metrics
 
-```{r gpp-defects-setup, include=FALSE}
+```{r liq-defects-setup, include=FALSE}
 # Empty
 ```
 
 
-```{r gpp-defect-metrics-setup, echo=FALSE, include=TRUE, message=FALSE, warning=FALSE}
+```{r liq-defect-metrics-setup, echo=FALSE, include=TRUE, message=FALSE, warning=FALSE}
 tib_defects.all <-
   finmetrics::get.FilteredTibble(here::here("inst/extdata",
-                                            "gpp_defects.csv"),
+                                            "liq_defects.csv"),
                                  date_from = Sys.Date() - months(12)) %>%
   filter(Type == "Defect")
 
 tib_defects.all$Priority <- factor(
   tib_defects.all$Priority,
-  levels = c("Critical", "High", "Medium", "Low", "None"),
+  levels = c("Critical", "High", "Medium", "Low"),
   ordered = TRUE
 )
 
@@ -246,7 +242,7 @@ Below is the [5 Number Summary](https://en.wikipedia.org/wiki/Five-number_summar
 
 #### Summary
 
-```{r gpp-defects-tab-cycle-time-basic-stats, out.width="80%", echo=FALSE, include=TRUE}
+```{r liq-defects-tab-cycle-time-basic-stats, out.width="80%", echo=FALSE, include=TRUE}
 
 tabulate.CycleTimeStat(tib_defects.closed, tab_caption = "5 Number Summary")
 
@@ -255,26 +251,26 @@ tabulate.CycleTimeStat(tib_defects.closed, tab_caption = "5 Number Summary")
 
 #### Cycle Time Trend
 
-```{r gpp-defects-cycle-time-trend-all, include=TRUE, echo=FALSE , out.width='80%', fig.asp=.75, fig.align='center', fig.cap="All Severities"}
+```{r liq-defects-cycle-time-trend-all, include=TRUE, echo=FALSE , out.width='80%', fig.asp=.75, fig.align='center', fig.cap="All Severities"}
 loess_plot.CycleTimeTrend(tib_defects.closed, plt_caption="Reflects ability of the team to resolve across all severities")
 ```
 
 
 #### 5 Number Summary
 
-```{r gpp-defects-cycle-time-summary, include=TRUE, out.width='80%', echo=FALSE}
+```{r liq-defects-cycle-time-summary, include=TRUE, out.width='80%', echo=FALSE}
 tabulate.PriorityBasedCycleTimeStat(tib_defects.closed,
                                     tab_caption = "All Severities")
 ```
 
-```{r gpp-defects-cycle-time-trend-for-hnc, include=TRUE, echo=FALSE , out.width='80%', fig.asp=.75, fig.align='center', fig.cap="High and Critical"}
+```{r liq-defects-cycle-time-trend-for-hnc, include=TRUE, echo=FALSE , out.width='80%', fig.asp=.75, fig.align='center', fig.cap="High and Critical"}
 
 loess_plot.CycleTimeTrend(tib_defects.closed.high_and_critical, plt_caption="Ability to focus on High and Critical Severities")
 
 ```
 
 
-```{r gpp-defects-cycle-time-stat-for-high-and-critical, include=TRUE, echo=FALSE }
+```{r liq-defects-cycle-time-stat-for-high-and-critical, include=TRUE, echo=FALSE }
 tabulate.PriorityBasedCycleTimeStat(tib_defects.closed.high_and_critical, tab_caption="5 Number Summary for High and Critical Defects")
 ```
 
@@ -282,7 +278,7 @@ tabulate.PriorityBasedCycleTimeStat(tib_defects.closed.high_and_critical, tab_ca
 ### Throughput
 
 
-```{r gpp-defects-closed-metric-for-each-week, include=TRUE, echo=FALSE, out.width="80%", fig.asp=0.75, fig.align='center', fig.cap="Closure metrics - All Defects"}
+```{r liq-defects-closed-metric-for-each-week, include=TRUE, echo=FALSE, out.width="80%", fig.asp=0.75, fig.align='center', fig.cap="Closure metrics - All Defects"}
 defects_ncount_by_week <-
   gen_ds.NumClosed_For_FloorDate(tib_defects.closed)
 
@@ -290,13 +286,13 @@ defects_ncount_by_week <-
 ```
 
 
-```{r gpp-defects-fig-completed-hnc-defects-week, out.width='80%', fig.asp=.75, fig.align='center', fig.cap = "Closed defects by Week", echo=FALSE}
+```{r liq-defects-fig-completed-hnc-defects-week, out.width='80%', fig.asp=.75, fig.align='center', fig.cap = "Closed defects by Week", echo=FALSE}
 hnc_defects_ncount_by_week <-
   gen_ds.NumClosed_For_FloorDate(tib_defects.closed.high_and_critical)
 line_plot.NumClosed_For_FloorDate(hnc_defects_ncount_by_week, plt_caption="Closure per Week - High and Critical Defects")
 ```
 
-```{r gpp-defects-wk-agg, include=TRUE, echo=FALSE}
+```{r liq-defects-wk-agg, include=TRUE, echo=FALSE}
 tib_defects_wk_agg <-
   tib_defects.closed %>%
   gen_ds.NumClosed_For_FloorDate(priority_based = TRUE)
@@ -310,15 +306,15 @@ tib_hnc_defects_wk_agg <-
 The plot below shows the number of defects closed in every week, marked separately in different color based on priority
 
 
-```{r gpp-defects-all-wk-agg-fig, include=TRUE, echo=FALSE, out.width="80%", fig.caption="Closure Count - All Priorities", fig.asp=0.75, fig.align="center"}
+```{r liq-defects-all-wk-agg-fig, include=TRUE, echo=FALSE, out.width="80%", fig.caption="Closure Count - All Priorities", fig.asp=0.75, fig.align="center"}
 bar_plot.NumClosed_For_FloorDate(tib_defects_wk_agg)
 ```
 
-```{r gpp-defects-fig-hnc-wk-agg, include=TRUE, echo=FALSE, out.width="80%", fig.caption="Closure Count - High and Critical Priorities", fig.asp=0.75, fig.align="center"}
+```{r liq-defects-fig-hnc-wk-agg, include=TRUE, echo=FALSE, out.width="80%", fig.caption="Closure Count - High and Critical Priorities", fig.asp=0.75, fig.align="center"}
 bar_plot.NumClosed_For_FloorDate(tib_hnc_defects_wk_agg)
 ```
 
-```{r gpp-defects-tab-weekly-aggregate, echo=FALSE}
+```{r liq-defects-tab-weekly-aggregate, echo=FALSE}
 DT::datatable(tib_defects_wk_agg, filter='top')
 ```
 
@@ -326,11 +322,11 @@ DT::datatable(tib_defects_wk_agg, filter='top')
 
 Gives and indication of the densities especially the occurrence of multiple maxima in the data. This can be due to multiple categories of work items which may be investigated further. Below are the violin plots for all defects and also high and critical defects.
 
-```{r gpp-defects-fig-densdist-closed-overall, include=TRUE, echo=FALSE, out.width="80%", fig.align="center", fig.cap="Priority based Density Distribution", message=FALSE, warning=FALSE}
+```{r liq-defects-fig-densdist-closed-overall, include=TRUE, echo=FALSE, out.width="80%", fig.align="center", fig.cap="Priority based Density Distribution", message=FALSE, warning=FALSE}
 tib_defects.closed %>% violin_plot.CycleTimeVsPriority(pal_option = 'B')
 ```
 
-```{r gpp-defects-fig-densdist-closed-hnc, include=TRUE, echo=FALSE, out.width="80%", fig.align="center", fig.cap="Priority based Density Distribution", message=FALSE, warning=FALSE}
+```{r liq-defects-fig-densdist-closed-hnc, include=TRUE, echo=FALSE, out.width="80%", fig.align="center", fig.cap="Priority based Density Distribution", message=FALSE, warning=FALSE}
 # tib_defects.closed.high_and_critical %>% violin_plot.CycleTimeVsPriority(pal_option = 'B')
 ```
 
@@ -338,7 +334,7 @@ tib_defects.closed %>% violin_plot.CycleTimeVsPriority(pal_option = 'B')
 
 #### Work in Progress (WiP)
 
-```{r gpp-defects-fig-areaplot-wip, include=TRUE, echo=FALSE, out.width="80%", fig.asp=.75, fig.caption="Work in Progress", fig.align='center', cache=TRUE}
+```{r liq-defects-fig-areaplot-wip, include=TRUE, echo=FALSE, out.width="80%", fig.asp=.75, fig.caption="Work in Progress", fig.align='center', cache=TRUE}
   tib_defects_work_in_progress <- tib_defects.all %>%
     dplyr::filter(Type == 'Defect') %>% finmetrics::compute.WIP()
 
@@ -355,12 +351,12 @@ tib_defects.closed %>% violin_plot.CycleTimeVsPriority(pal_option = 'B')
 
 #### Inflow Outflow
 
-```{r gpp-defects-inflow-outflow, include=TRUE, echo=FALSE,out.width='80%', fig.asp=.75, fig.align='center', eval=TRUE}
+```{r liq-defects-inflow-outflow, include=TRUE, echo=FALSE,out.width='80%', fig.asp=.75, fig.align='center', eval=TRUE}
 flow.defects.merged <- tib_defects.all %>%
   get.InflowOutflowTibble.Defect(include_priority = TRUE)
 bar_plot.InflowOutflow(flow.defects.merged)
 ```
 
-```{r gpp-defects-inflow-outflow-cumsumm, include=TRUE, echo=FALSE, out.width='80%', fig.asp=.75, fig.align='center',eval=TRUE}
+```{r liq-defects-inflow-outflow-cumsumm, include=TRUE, echo=FALSE, out.width='80%', fig.asp=.75, fig.align='center',eval=TRUE}
 line_plot.InflowOutflow.CumSum(flow.defects.merged)
 ```
