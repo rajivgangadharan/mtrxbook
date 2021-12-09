@@ -1,6 +1,8 @@
 # Fusion Corporate Channels (FCC)
 
-## Delivery Metrics {#fcc}
+The reports are pulled from the Jira Projects *MPSSC* and *MPS*  for deliery and defect reports respectively
+
+## Delivery Metrics 
 
 
 ```{r fcc-setup, include=FALSE}
@@ -15,16 +17,24 @@ tib.all <-
                                             "fcc_delivery.csv"),
                                  date_from = Sys.Date() - months(12))
 
-tib.all$Priority <- factor(tib.all$Priority, levels=c("Critical","High", "Medium", "Low"), ordered = TRUE)
-
 tib <- tib.all %>%
-  finmetrics::exclude.OpenCases() %>% finmetrics::compute.CycleTime() %>%
+  finmetrics::exclude.OpenCases() %>% 
+  finmetrics::compute.CycleTime() %>%
   finmetrics::compute.Week()
 
-# Collecting only stories
-stories.closed <- tib %>% filter(Type == "Story")
-# Collecting only Epics
-epics.closed <- tib %>% filter(Type == "Epic")
+tib.all$Priority <- 
+  factor(tib.all$Priority, 
+                           levels=c("Critical",
+                                    "High", 
+                                    "Medium", 
+                                    "Low", 
+                                    "None"), 
+                           ordered = TRUE)
+
+# Collecting only stories, filtering out abnormalities
+stories.closed <- tib %>% filter(cldt > crdt) %>% filter(Type == "Story")
+# Collecting only Epics, filtering out abnormalities
+epics.closed <- tib %>% filter(cldt > crdt) %>% filter(Type == "Epic")
 ```
 
 ###  Cycle Time
@@ -42,7 +52,7 @@ tabulate.TypeAndPriorityBasedCycleTimeStat(tib)
 
 
 ```{r fcc-epics-cycle-time-trend-fig, include=TRUE, out.width='80%', fig.asp=.75, fig.align='center', fig.cap="Cycle Time Trend", echo=FALSE}
-loess_plot.CycleTimeTrend(epics.closed)
+loess_plot.CycleTimeTrend(epics.closed, col_date="crdt")
 ```
 
 
@@ -54,7 +64,7 @@ loess_plot.CycleTimeTrend(epics.closed)
 
 ```{r fcc-stories-cycle-time-trend-fig, include=TRUE, out.width='80%', fig.asp=.75, fig.align='center', fig.cap="Cycle Time Trend", echo=FALSE}
 
-loess_plot.CycleTimeTrend(stories.closed)
+loess_plot.CycleTimeTrend(stories.closed, col_date="crdt")
 
 ```
 
@@ -138,7 +148,24 @@ stories.closed %>% violin_plot.CycleTimeVsPriority(pal_option = 'D')
 
 ##### Epics 
 
-**Data Insufficient** 
+```{r fcc-epics-work-in-progress, include=TRUE, echo=FALSE}
+tib_epics_work_in_progress <- tib.all %>%
+  dplyr::filter(Type == 'Epic') %>% finmetrics::compute.WIP()
+
+```
+
+```{r fcc-epics-work-in-progress-fig , include=TRUE, echo=FALSE, out.width='80%', fig.asp=.75, fig.cap="WiP in Days", fig.align='center', cache=TRUE}
+ggplot(tib_epics_work_in_progress,
+  aes(x = Date, y = WIPInDays)
+) +
+  geom_area(fill = viridis(1)) +
+  xlab("Dates") + ylab("WiP (Days)") +
+  scale_x_date(date_labels = "%b/%y", date_breaks = "8 weeks") +
+  scale_fill_viridis(discrete = TRUE, option = "D") +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+
+```
 
 ##### Stories
 
@@ -203,7 +230,7 @@ tib_defects.all <-
 
 tib_defects.all$Priority <- factor(
   tib_defects.all$Priority,
-  levels = c("Critical", "High", "Medium", "Low"),
+  levels = c("Critical", "High", "Medium", "Low", "None"),
   ordered = TRUE
 )
 
