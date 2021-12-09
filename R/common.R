@@ -1,8 +1,38 @@
+# common.R - Contains common methods for mtrxbook-minimal bookdown project
+#
+# Rajiv Gangadharan <rajiv.gangadharan@gmail.com>
+# Copyright 2021 Rajiv Gangadharan <rajiv.gangadharan@gmail.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software
+#  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+#  MA 02110-1301, USA.
+
+
 library(dplyr)
 library(finmetrics)
 library(ggplot2)
 library(viridis)
 library(here)
+library(roxygen2)
+
+
+abnormalities.drop <- function(tib) {
+  tib %>% filter(cldt < crdt)
+}
+
+abnormalities.select <- function(tib) {
+  filter(tib, cldt > crdt)
+}
 
 
 violin_plot.CycleTimeVsPriority <- function(tib, pal_option = 'D') {
@@ -31,7 +61,8 @@ bar_plot.NumClosed_For_FloorDate <- function(tib, pal_option="D") {
 }
 
 
-line_plot.NumClosed_For_FloorDate <- function(tib, plt_caption="Closed per Week", pal_option='D')
+line_plot.NumClosed_For_FloorDate <-
+  function(tib, plt_caption="Closed per Week", pal_option='D')
   ggplot(tib,
          aes(x = as.Date(FloorDate),
              y = NumClosed)) +
@@ -45,7 +76,7 @@ line_plot.NumClosed_For_FloorDate <- function(tib, plt_caption="Closed per Week"
   theme(legend.position = "bottom") +
   labs(caption=plt_caption)
 
-#'
+
 #' @name compute.FloorDateBased.Aggregates
 #' @title Generates a tibble with the Date, Priority and Number of Work Items
 #' Closed
@@ -181,9 +212,12 @@ tabulate.TypeAndPriorityBasedCycleTimeStat <-
       )
   }
 
-loess_plot.CycleTimeTrend <- function(tib, plt_caption = "Cycle Time Trend - Loess Plot", pal_option='D') {
+loess_plot.CycleTimeTrend <- function(tib,
+                                      plt_caption = "Cycle Time Trend - Loess Plot",
+                                      col_date = "cldt",
+                                      pal_option='D') {
   cycle_time_trend_plot <- ggplot(tib,
-                                  aes(x = cldt, y = cylt)) +
+                                  aes(x = .data[[col_date]], y = cylt)) +
     geom_point(aes(colour = Priority)) +
     geom_smooth(method = "loess", formula = 'y~x') +
     xlab("Reporting Period") +  ylab("Cycle Time (Days)") +
@@ -226,9 +260,9 @@ get.InflowOutflowTibble <- function(tib,
 
   tib.closed <- tib %>%
     finmetrics::exclude.OpenCases() %>%
-    finmetrics::compute.CycleTime() %>%
     finmetrics::compute.Week(col_closed_date = col_closed_date) %>%
     filter(Type == itemType)
+  
   tib.opened <-
     tib %>%
     finmetrics::compute.Week(col_closed_date = col_opened_date) %>%
@@ -252,7 +286,7 @@ get.InflowOutflowTibble <- function(tib,
     flow.opened <- tib.opened %>% compute.FloorDateBased.Aggregates()
     flow.closed <-
       tib.closed %>% compute.FloorDateBased.Aggregates()
-    flow.merged <- full_join(flow.opened,
+    flow.merged <- inner_join(flow.opened,
                              flow.closed,
                              by = c("FloorDate"),
                              sort = "FloorDate") %>%
