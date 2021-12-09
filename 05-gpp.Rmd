@@ -1,4 +1,4 @@
-# Global Play Plus (GPP)
+# Global Pay Plus (GPP)
 
 ## Delivery Metrics 
 
@@ -22,7 +22,11 @@ tib <- tib.all %>%
 
 tib.all$Priority <- 
   factor(tib.all$Priority, 
-                           levels=c("Critical","High", "Medium", "Low", "None"), 
+                           levels=c("Critical",
+                                    "High", 
+                                    "Medium", 
+                                    "Low", 
+                                    "None"), 
                            ordered = TRUE)
 
 # Collecting only stories, filtering out abnormalities
@@ -224,7 +228,7 @@ tib_defects.all <-
 
 tib_defects.all$Priority <- factor(
   tib_defects.all$Priority,
-  levels = c("Critical", "High", "Medium", "Low"),
+  levels = c("Critical", "High", "Medium", "Low", "NA"),
   ordered = TRUE
 )
 
