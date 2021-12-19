@@ -89,6 +89,7 @@ line_plot.NumClosed_For_FloorDate <-
 #' @param col_priority Column name of the priority of the closed items
 #' @seealso compute.Week()
 #' get.FilteredTibble(fileName="data/example_delivery.csv") %>%  get.ClosedCases() %>% compute.CycleTime() %>% compute.Week() %>% compute.PriorityBased.ClosureAggregates()
+#' @return A tibble aggregated on the col_date (Default: FloorDate)
 #' @export
 compute.FloorDateBased.Aggregates <-
   function(tib,
