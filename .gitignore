@@ -7,7 +7,6 @@ _bookdown_files
 rsconnect
 *.rds
 *.Rproj
-*.md
 docker-compose.out
 inst/*
 *.rds
