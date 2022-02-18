@@ -1,0 +1,85 @@
+#! /bin/sh
+### BEGIN INIT INFO
+# Provides:          mtrxbook
+# Required-Start:    $syslog $remote_fs
+# Required-Stop:     $syslog $remote_fs
+# Should-Start:      $network avahi-daemon slapd nslcd
+# Should-Stop:       $network
+# X-Start-Before:    samba
+# X-Stop-After:      samba
+# Default-Start:     2 3 4 5
+# Default-Stop:      1
+# Short-Description: mtrxbook stack provisioning
+# Description:       Provision the mtrxbook stack
+#                    
+### END INIT INFO
+
+# Author: Rajiv Gangadharan <rajiv.gangadharan@gmail.com>
+
+BASE_DIR=/home/rajivg/Documents/Work/Code/mtrxbook-minimal
+
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+DAEMON='docker-compose up -d'
+DAEMON_STOP='docker-compose down -v'
+NAME=mtrxbookd
+PIDFILE=${BASE_DIR}/run/$NAME.pid
+DESC="MTRX Book - A handbook of delivery metrics"
+SCRIPTNAME=/etc/init.d/mtrxbook
+
+unset TMPDIR
+
+# Exit if the package is not installed
+test -x $DAEMON || exit 0
+
+# Define LSB log_* functions.
+# Depend on lsb-base (>= 3.2-14) to ensure that this file is present
+# and status_of_proc is working.
+. /lib/lsb/init-functions
+
+# Get the timezone set.
+if [ -z "$TZ" -a -e /etc/timezone ]; then
+    TZ=`cat /etc/timezone`
+    export TZ
+fi
+
+case "$1" in
+  start)
+	log_daemon_msg "Starting $DESC" "$NAME"
+
+	mkdir -p `dirname "$PIDFILE"`
+	start-stop-daemon --start --quiet --oknodo --pidfile "$PIDFILE" --exec $DAEMON
+	status=$?
+	[ $status = 0 ] && coldplug_usb_printers
+	log_end_msg $status
+	;;
+  stop)
+	log_daemon_msg "Stopping $DESC" "$NAME"
+        $DAEMON_STOP
+	start-stop-daemon --stop --quiet --retry 5 --oknodo --pidfile $PIDFILE --name $NAME
+	status=$?
+	log_end_msg $status
+	;;
+  reload|force-reload)
+       log_daemon_msg "Reloading $DESC" "$NAME"
+       start-stop-daemon --stop --quiet --pidfile $PIDFILE --name $NAME --signal 1
+       status=$?
+       log_end_msg $status
+       ;;
+  restart)
+	log_daemon_msg "Restarting $DESC" "$NAME"
+	if start-stop-daemon --stop --quiet --retry 5 --oknodo --pidfile $PIDFILE --name $NAME; then
+		start-stop-daemon --start --quiet --pidfile "$PIDFILE" --exec $DAEMON
+	fi
+	status=$?
+	log_end_msg $status
+	;;
+  status)
+	status_of_proc -p "$PIDFILE" "$DAEMON" "$NAME" && exit 0 || exit $?
+	;;
+  *)
+	echo "Usage: $SCRIPTNAME {start|stop|restart|force-reload|status}" >&2
+	exit 3
+	;;
+esac
+
+exit 0
