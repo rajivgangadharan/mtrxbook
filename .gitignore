@@ -10,3 +10,4 @@ rsconnect
 docker-compose.out
 inst/*
 *.rds
+*.knit.md
