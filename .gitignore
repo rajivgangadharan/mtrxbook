@@ -5,3 +5,9 @@ _publish.R
 _book
 _bookdown_files
 rsconnect
+*.rds
+*.Rproj
+*.md
+docker-compose.out
+inst/*
+*.rds

@@ -330,4 +330,29 @@ line_plot.InflowOutflow.CumSum <- function(tib, pal_option = 'D') {
 }
 
 
+#' @name cycleTimeQuantiles
+#' @title Generates the Quantiles from the given dataframe
+#' @importFrom tibble is_tibble
+#' @importFrom dplyr %>%
+#' @importFrom dplyr summarize_at
+#' @importFrom dplyr group_by
+#' @importFrom lubridate isoweek
+#' @importFrom lubridate floor_date
+#' @description
+#' Takes a tibble with a column named cylt and with the columns
+#' Priority and Type to be grouped on for generating the quantiles
+#' @param tib_df Input tibble with variables cylt, Type and Priority
+#' @export
+cycleTimeQuantiles <- function(tib) {
+  tib %>% dplyr::group_by(Type, Priority) %>%
+    dplyr::summarise_at(vars(cylt),
+                        list(Min=min,
+                             LoQ= ~quantile(., probs = 0.25),
+                             Med=median,
+                             UpQ= ~quantile(., probs = 0.75),
+                             Max=max))
+}
+
+
+
 
