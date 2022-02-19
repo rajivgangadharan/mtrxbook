@@ -11,3 +11,5 @@ docker-compose.out
 inst/*
 *.rds
 *.knit.md
+01-intro.md
+index.md
