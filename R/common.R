@@ -24,6 +24,7 @@ library(ggplot2)
 library(viridis)
 library(here)
 library(roxygen2)
+library(scales)
 
 
 abnormalities.drop <- function(tib) {
@@ -34,47 +35,107 @@ non_abnormalities.select <- function(tib) {
   filter(tib, cldt > crdt)
 }
 
+# Viridis scale
+viridis_indigo=       '#440154FF'
+viridis_blue=         '#33638DFF'
+viridis_green=        '#29AF7FFF'
+viridis_greenyellow = '#87D549FF' 
+viridis_yellow=       '#DCE319FF'
+
+cbPalette <- c("#D55E00", "#E69F00", "#56B4E9",  "#F0E442", "#009E73", "#0072B2", "#CC79A7", "#999999")
+
+cbPalette_cols <- c(
+  "Critical" = cbPalette[1],
+  "High" = cbPalette[2],
+  "Medium" = cbPalette[3],
+  "Low" = cbPalette[4],
+  "None" = cbPalette[8]
+)
+
+viridis_cols <- c(
+  "Critical" = viridis_indigo,
+  "High" = viridis_blue,
+  "Medium" = viridis_green,
+  "Low" = viridis_greenyellow,
+  "None" = viridis_yellow
+)
+
+# The variables color_scale, color_scale_line will control the colors that is used for manual fill
+# Change the values option for a different color scheme
+colour_scale <- scale_color_manual(values = cbPalette_cols,
+                                   aesthetics = c("colour", "fill"),
+                                   na.value = "grey50")
+colour_scale_line <- scale_linetype_manual(values = cbPalette_cols, 
+                                           aesthetics = c("colour", "fill"),
+                                           breaks = waiver(), 
+                                           na.value = "blank")
+
 
 violin_plot.CycleTimeVsPriority <- function(tib, pal_option = 'D') {
   # Need to pass tib with Priority as a factor variable
   tib$Priority <- as.factor(tib$Priority)
-  ggplot(tib, aes(x = Priority, y = cylt, fill = Priority)) +
+  plt <- ggplot(tib, aes(x = Priority, y = cylt, fill = Priority)) +
     geom_violin(draw_quantiles = c(0.5), alpha = 0.25) +
-    scale_fill_viridis(discrete = TRUE, option = pal_option) +
-  theme_minimal() +
-    theme(legend.position = "bottom")
+    theme_minimal() + theme(legend.position = "bottom")
+  
+  ifelse(hasArg(pal_option),
+    plt <- plt + scale_fill_viridis(discrete = TRUE, option = pal_option),
+    plt <- plt + colour_scale)
+  
+  plt
 }
 
 bar_plot.NumClosed_For_FloorDate <- function(tib, pal_option="D") {
-  ggplot(tib, aes(
-    x = FloorDate,
-    y = NumClosed,
-    fill = Priority
-  )) +
+  plt <- ggplot(tib, aes(x = FloorDate,
+                         y = NumClosed,
+                         fill = Priority)) +
     geom_bar(stat = "identity") +
     xlab("Reporting Period") +
     ylab("Throughput") +
     scale_x_date(date_labels = "%b/%y", date_breaks = "8 weeks") +
-    scale_fill_viridis(discrete = TRUE, option = pal_option) +
     theme_minimal() +
     theme(legend.position = "bottom")
+  
+  ifelse(hasArg(plt_option),
+         plt <- plt + scale_fill_viridis(discrete = TRUE, option = pal_option),
+         plt <- plt + colour_scale)
+  plt
 }
 
 
 line_plot.NumClosed_For_FloorDate <-
-  function(tib, plt_caption="Closed per Week", pal_option='D')
-  ggplot(tib,
-         aes(x = as.Date(FloorDate),
-             y = NumClosed)) +
-  geom_line() +
-  geom_point() +
-  xlab("Reporting Period") + ylab("Count of work items") +
-  scale_x_date(date_labels = "%b/%y", date_breaks = "8 weeks") +
-  scale_color_viridis(discrete = TRUE, option = pal_option) +
-  scale_fill_viridis(discrete = TRUE, option = pal_option) +
-  theme_minimal() +
-  theme(legend.position = "bottom") +
-  labs(caption=plt_caption)
+  function(tib,
+           plt_caption = "Closed per Week",
+           pal_option = 'D',
+           show_trend = FALSE) {
+    plt <- ggplot(tib,
+                  aes(x = as.Date(FloorDate),
+                      y = NumClosed)) +
+      geom_line() +
+      geom_point() +
+      xlab("Reporting Period") + ylab("Count of work items") +
+      scale_x_date(date_labels = "%b/%y", date_breaks = "8 weeks") +
+      theme_minimal() +
+      theme(legend.position = "bottom") +
+      labs(caption = plt_caption)
+ 
+    # If trend line is opted for
+    ifelse (show_trend == TRUE,
+            plt <- plt + geom_smooth(formula = 'y~x', 
+                                     se = FALSE, 
+                                     method = "loess"),
+            plt )
+    
+    # Color Scale
+    ifelse(
+      hasArg(pal_option),
+      plt <-
+        plt + scale_color_viridis(discrete = TRUE, option = pal_option),
+      plt <- plt + colour_scale
+    )
+    
+    plt
+  }
 
 
 #' @name compute.FloorDateBased.Aggregates
@@ -301,7 +362,7 @@ get.InflowOutflowTibble <- function(tib,
 
 bar_plot.InflowOutflow <- function(tib, pal_option='D') {
   # Bar Chart showing opening and closing
-  ggplot2::ggplot() +
+  plt <- ggplot2::ggplot() +
     ggplot2::geom_bar(data = tib,
                       aes(x=FloorDate, y=Opened, fill=Priority),
                       stat = "identity") +
@@ -313,10 +374,15 @@ bar_plot.InflowOutflow <- function(tib, pal_option='D') {
     ggplot2::scale_x_date(date_labels="%b/%y",
                           date_breaks = "8 weeks",
                           minor_breaks = "2 weeks") +
-    scale_fill_viridis(discrete=TRUE, option=pal_option) +
     theme_minimal() +
     theme(legend.position="bottom",
           legend.direction="horizontal")
+  
+  ifelse(hasArg(pal_option),
+    plt <- plt + scale_fill_viridis(discrete=TRUE, option=pal_option),
+    plt <- plt + colour_scale)
+  
+  plt 
 }
 
 line_plot.InflowOutflow.CumSum <- function(tib, pal_option = 'D') {
