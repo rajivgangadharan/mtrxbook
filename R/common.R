@@ -30,7 +30,7 @@ abnormalities.drop <- function(tib) {
   tib %>% filter(cldt < crdt)
 }
 
-abnormalities.select <- function(tib) {
+non_abnormalities.select <- function(tib) {
   filter(tib, cldt > crdt)
 }
 

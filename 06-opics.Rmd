@@ -285,7 +285,7 @@ tabulate.PriorityBasedCycleTimeStat(tib_defects.closed.high_and_critical, tab_ca
 defects_ncount_by_week <-
   gen_ds.NumClosed_For_FloorDate(tib_defects.closed)
 
-  line_plot.NumClosed_For_FloorDate(defects_ncount_by_week, plt_caption="Closure per Week for All Defects", pal_option="B")
+  line_plot.NumClosed_For_FloorDate(defects_ncount_by_week, plt_caption="Closure per Week for All Defects", pal_option="D")
 ```
 
 
@@ -326,7 +326,7 @@ DT::datatable(tib_defects_wk_agg, filter='top')
 Gives and indication of the densities especially the occurrence of multiple maxima in the data. This can be due to multiple categories of work items which may be investigated further. Below are the violin plots for all defects and also high and critical defects.
 
 ```{r opics-defects-fig-densdist-closed-overall, include=TRUE, echo=FALSE, out.width="80%", fig.align="center", fig.cap="Priority based Density Distribution", message=FALSE, warning=FALSE}
-tib_defects.closed %>% violin_plot.CycleTimeVsPriority(pal_option = 'B')
+tib_defects.closed %>% violin_plot.CycleTimeVsPriority(pal_option = 'D')
 ```
 
 ```{r opics-defects-fig-densdist-closed-hnc, include=TRUE, echo=FALSE, out.width="80%", fig.align="center", fig.cap="Priority based Density Distribution", message=FALSE, warning=FALSE}
