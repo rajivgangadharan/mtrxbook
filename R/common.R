@@ -65,10 +65,12 @@ viridis_cols <- c(
 colour_scale <- scale_color_manual(values = cbPalette_cols,
                                    aesthetics = c("colour", "fill"),
                                    na.value = "grey50")
+
 colour_scale_line <- scale_linetype_manual(values = cbPalette_cols, 
                                            aesthetics = c("colour", "fill"),
                                            breaks = waiver(), 
                                            na.value = "blank")
+plotly_color_scale <- cbPalette_cols
 
 
 violin_plot.CycleTimeVsPriority <- function(tib, pal_option = 'D') {
@@ -275,26 +277,36 @@ tabulate.TypeAndPriorityBasedCycleTimeStat <-
   }
 
 loess_plot.CycleTimeTrend <- function(tib,
-                                      plt_caption = "Cycle Time Trend - Loess Plot",
+                                      plt_caption = "Cycle Time Trend",
                                       col_date = "cldt",
                                       pal_option='D') {
-  cycle_time_trend_plot <- ggplot(tib,
-                                  aes(x = .data[[col_date]], y = cylt)) +
+  plt <- ggplot(tib,
+                aes(x = .data[[col_date]], y = cylt)) +
     geom_point(aes(colour = Priority)) +
     geom_smooth(method = "loess", formula = 'y~x') +
     xlab("Reporting Period") +  ylab("Cycle Time (Days)") +
-    scale_x_date(date_labels = "%b/%y", date_breaks = "8 weeks") +
-    scale_color_viridis(discrete = TRUE, option = pal_option) +
+    scale_x_date(
+      date_labels = "%b/%y",
+      date_breaks = "8 weeks",
+      minor_breaks = "2 weeks"
+    ) +
     theme_minimal() +
     theme(legend.position = "bottom") +
-    labs("Priority", caption=plt_caption)
+    labs("Priority", caption = plt_caption)
 
+  # Adding the quantile like at 75%
   q <- quantile(tib$cylt, prob = c(0.1, 0.2, 0.5, .75, 1))
-
-  cycle_time_trend_plot + geom_hline(yintercept = q["75%"],
+  plt + geom_hline(yintercept = q["75%"],
                                      linetype = 2,
                                      alpha = 0.5)
+  
+  ifelse(hasArg(pal_option),
+         plt <- plt + scale_color_viridis(discrete = TRUE, option = pal_option),
+         plt <- plt + colour_scale)
+  
+  plt
 }
+
 
 get.InflowOutflowTibble.Story <- function(tib,
                                           include_priority = TRUE) {
@@ -356,9 +368,12 @@ get.InflowOutflowTibble <- function(tib,
       select(-c("NumClosed.x", "NumClosed.y"))
   }
   flow.merged[is.na(flow.merged)] <- 0
-  flow.merged %>% group_by(Priority) %>% mutate(CumSum = cumsum(Opened - Closed))
+  flow.merged %>% group_by(Priority) %>% 
+    mutate(CumSum = cumsum(Opened - Closed)) %>% 
+    arrange(FloorDate, Priority)
 }
 
+gen_ds.InflowOutflowTibble <- get.InflowOutflowTibble
 
 bar_plot.InflowOutflow <- function(tib, pal_option='D') {
   # Bar Chart showing opening and closing
@@ -386,13 +401,49 @@ bar_plot.InflowOutflow <- function(tib, pal_option='D') {
 }
 
 line_plot.InflowOutflow.CumSum <- function(tib, pal_option = 'D') {
-  ggplot(tib, aes(x = FloorDate, y = CumSum, color = Priority)) +
+  plt <-
+    ggplot(tib, aes(x = FloorDate, y = CumSum, color = Priority)) +
     geom_line(size = 1) +
     geom_point() +
-    scale_x_date(date_labels = "%b/%y", breaks = "8 weeks") +
-    scale_fill_viridis(discrete = TRUE, option = pal_option) +
+    scale_x_date(date_labels = "%b/%y", 
+                 breaks = "8 weeks", 
+                 minor_breaks = "2 weeks") +
     theme_minimal() +
     theme(legend.position = "bottom", legend.direction = "horizontal")
+  
+  ifelse(hasArg(pal_option),
+    plt <- plt + scale_fill_viridis(discrete = TRUE, option = pal_option),
+    plt <- plt + colour_scale
+  )
+  
+  plt
+}
+
+line_plotly.InflowOutflow.CumSum <- function(tib, pal_option = 'D') {
+  if (hasArg(pal_option)) {
+    plt <- plotly::plot_ly(
+      tib,
+      x = ~ FloorDate,
+      y = ~ CumSum,
+      color = ~ Priority,
+      type = 'scatter',
+      mode = 'lines+markers',
+      colors = viridis_pal(option = pal_option)(5)
+    )
+  } else {
+    plt <- plotly::plot_ly(
+      tib,
+      x = ~ FloorDate,
+      y = ~ CumSum,
+      color = ~ Priority,
+      type = 'scatter',
+      mode = 'lines+markers',
+      colors = plotly_color_scale
+    )
+  }
+  #plt <- plt %>% layout(legend = list(orientation = 'h'))
+  
+  plt
 }
 
 
@@ -420,5 +471,32 @@ cycleTimeQuantiles <- function(tib) {
 }
 
 
-
-
+#' @name areaPlot.WiP
+#' @title Generates an areaPlot to visualize with in progress (WiP)
+#' @import viridis
+#' @importFrom  ggplot2 ggplot
+#' @description
+#' Takes a tibble and then plots an area charts with it for the number 
+#' of work items in progress
+#' @param tib_df Input tibble with variables Date and WIPInDays
+#' @param pal_option Decides if viridis has to be used if yes which palette
+#' @export
+areaPlot.WiP <- function(tib, pal_option = 'D') {
+  plt <- ggplot(tib,
+         aes(x = Date, y = WIPInDays)
+  ) +
+    geom_area() +
+    xlab("Dates") + ylab("WiP (Days)") +
+    scale_x_date(date_labels = "%b/%y", 
+                 date_breaks = "8 weeks",
+                 minor_breaks = "2 weeks") +
+    theme_minimal() +
+    theme(legend.position = "bottom")
+  
+  ifelse(hasArg(pal_option),
+    plt <- plt + scale_fill_viridis(discrete = TRUE, option = pal_option),
+    plt <- plt + colour_scale
+  )
+  
+  plt
+}
