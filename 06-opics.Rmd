@@ -99,7 +99,7 @@ bar_plot.NumClosed_For_FloorDate(
 Gives and indication of the densities especially the occurrence of multiple maxima in the data. This can be due to multiple categories of work items which may be investigated further. 
 
 ```{r opics-density-distibution-closed-epics-fig, include=TRUE, echo=FALSE, out.width="80%", fig.align="center", fig.asp=.75, fig.cap="Priority based Density Distribution", message=FALSE, warning=FALSE}
-epics.closed %>% violin_plot.CycleTimeVsPriority(pal_option = 'D')
+epics.closed %>% violin_plot.CycleTimeVsPriority()
 ```
 
 
@@ -112,7 +112,8 @@ week which is an indication of how stable the throughput is.
 ```{r opics-completed-items-week-fig, out.width='80%', fig.asp=.75, fig.align='center', echo=FALSE}
 
 line_plot.NumClosed_For_FloorDate(
-  gen_ds.NumClosed_For_FloorDate(stories.closed)
+  gen_ds.NumClosed_For_FloorDate(stories.closed), 
+  show_trend = TRUE
 )
 
 ```
@@ -134,7 +135,7 @@ Gives and indication of the densities especially the occurrence of multiple maxi
 
 ```{r opics-density-distibution-closed-stories-fig, include=TRUE, echo=FALSE, out.width="80%", fig.align="center", fig.asp=.75, fig.cap="Priority based Density Distribution", message=FALSE, warning=FALSE}
 
-stories.closed %>% violin_plot.CycleTimeVsPriority(pal_option = 'D')
+stories.closed %>% violin_plot.CycleTimeVsPriority()
 
 ```
 
@@ -152,16 +153,7 @@ tib_epics_work_in_progress <- tib.all %>%
 ```
 
 ```{r opics-epics-work-in-progress-fig , include=TRUE, echo=FALSE, out.width='80%', fig.asp=.75, fig.cap="WiP in Days", fig.align='center', cache=TRUE}
-ggplot(tib_epics_work_in_progress,
-  aes(x = Date, y = WIPInDays)
-) +
-  geom_area(fill = viridis(1)) +
-  xlab("Dates") + ylab("WiP (Days)") +
-  scale_x_date(date_labels = "%b/%y", date_breaks = "8 weeks") +
-  scale_fill_viridis(discrete = TRUE, option = "D") +
-  theme_minimal() +
-  theme(legend.position = "bottom")
-
+areaPlot.WiP(tib_epics_work_in_progress)
 ```
 
 ##### Stories
@@ -173,16 +165,7 @@ tib_stories_work_in_progress <- tib.all %>%
 ```
 
 ```{r opics-stories-work-in-progress-fig , include=TRUE, echo=FALSE, out.width='80%', fig.asp=.75, fig.cap="WiP in Days", fig.align='center', cache=TRUE}
-ggplot(tib_stories_work_in_progress,
-  aes(x = Date, y = WIPInDays)
-) +
-  geom_area(fill = viridis(1)) +
-  xlab("Dates") + ylab("WiP (Days)") +
-  scale_x_date(date_labels = "%b/%y", date_breaks = "8 weeks") +
-  scale_fill_viridis(discrete = TRUE, option = "D") +
-  theme_minimal() +
-  theme(legend.position = "bottom")
-
+areaPlot.WiP(tib_stories_work_in_progress)
 ```
 
 #### Inflow/OutFlow
@@ -254,8 +237,11 @@ tabulate.CycleTimeStat(tib_defects.closed, tab_caption = "5 Number Summary")
 
 #### Cycle Time Trend
 
+This reflects the capacity/capability of the team to resolve across all 
+priorities as indicated by a trend.
+
 ```{r opics-defects-cycle-time-trend-all, include=TRUE, echo=FALSE , out.width='80%', fig.asp=.75, fig.align='center', fig.cap="All Severities"}
-loess_plot.CycleTimeTrend(tib_defects.closed, plt_caption="Reflects ability of the team to resolve across all severities")
+loess_plot.CycleTimeTrend(tib_defects.closed)
 ```
 
 
@@ -285,14 +271,18 @@ tabulate.PriorityBasedCycleTimeStat(tib_defects.closed.high_and_critical, tab_ca
 defects_ncount_by_week <-
   gen_ds.NumClosed_For_FloorDate(tib_defects.closed)
 
-  line_plot.NumClosed_For_FloorDate(defects_ncount_by_week, plt_caption="Closure per Week for All Defects", pal_option="D")
+line_plot.NumClosed_For_FloorDate(defects_ncount_by_week,
+                                  plt_caption = "Closure/Week", 
+                                  show_trend = TRUE)
 ```
 
 
 ```{r opics-defects-fig-completed-hnc-defects-week, out.width='80%', fig.asp=.75, fig.align='center', fig.cap = "Closed defects by Week", echo=FALSE}
 hnc_defects_ncount_by_week <-
   gen_ds.NumClosed_For_FloorDate(tib_defects.closed.high_and_critical)
-line_plot.NumClosed_For_FloorDate(hnc_defects_ncount_by_week, plt_caption="Closure per Week - High and Critical Defects")
+line_plot.NumClosed_For_FloorDate(hnc_defects_ncount_by_week, 
+                                  plt_caption="Closure/Week - High & Critical",
+                                  show_trend = TRUE)
 ```
 
 ```{r opics-defects-wk-agg, include=TRUE, echo=FALSE}
@@ -326,7 +316,7 @@ DT::datatable(tib_defects_wk_agg, filter='top')
 Gives and indication of the densities especially the occurrence of multiple maxima in the data. This can be due to multiple categories of work items which may be investigated further. Below are the violin plots for all defects and also high and critical defects.
 
 ```{r opics-defects-fig-densdist-closed-overall, include=TRUE, echo=FALSE, out.width="80%", fig.align="center", fig.cap="Priority based Density Distribution", message=FALSE, warning=FALSE}
-tib_defects.closed %>% violin_plot.CycleTimeVsPriority(pal_option = 'D')
+tib_defects.closed %>% violin_plot.CycleTimeVsPriority()
 ```
 
 ```{r opics-defects-fig-densdist-closed-hnc, include=TRUE, echo=FALSE, out.width="80%", fig.align="center", fig.cap="Priority based Density Distribution", message=FALSE, warning=FALSE}
@@ -340,16 +330,7 @@ tib_defects.closed %>% violin_plot.CycleTimeVsPriority(pal_option = 'D')
 ```{r opics-defects-fig-areaplot-wip, include=TRUE, echo=FALSE, out.width="80%", fig.asp=.75, fig.caption="Work in Progress", fig.align='center', cache=TRUE}
   tib_defects_work_in_progress <- tib_defects.all %>%
     dplyr::filter(Type == 'Defect') %>% finmetrics::compute.WIP()
-
-  ggplot(tib_defects_work_in_progress,
-         aes(x = Date, y = WIPInDays)
-  ) +
-    geom_area(fill = viridis(1)) +
-    xlab("Dates") + ylab("WiP (Days)") +
-    scale_x_date(date_labels = "%b/%y", date_breaks = "8 weeks") +
-    scale_fill_viridis(discrete = TRUE, option = "B") +
-    theme_minimal() +
-    theme(legend.position = "bottom")
+  areaPlot.WiP(tib_defects_work_in_progress)
 ```
 
 #### Inflow Outflow
@@ -357,9 +338,11 @@ tib_defects.closed %>% violin_plot.CycleTimeVsPriority(pal_option = 'D')
 ```{r opics-defects-inflow-outflow, include=TRUE, echo=FALSE,out.width='80%', fig.asp=.75, fig.align='center', eval=TRUE}
 flow.defects.merged <- tib_defects.all %>%
   get.InflowOutflowTibble.Defect(include_priority = TRUE)
-bar_plot.InflowOutflow(flow.defects.merged)
+bar_plot.InflowOutflow(flow.defects.merged, data_values = TRUE)
 ```
 
 ```{r opics-defects-inflow-outflow-cumsumm, include=TRUE, echo=FALSE, out.width='80%', fig.asp=.75, fig.align='center',eval=TRUE}
-line_plot.InflowOutflow.CumSum(flow.defects.merged)
+      line_plot.InflowOutflow.CumSum(flow.defects.merged)
+
 ```
+

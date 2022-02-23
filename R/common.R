@@ -25,6 +25,8 @@ library(viridis)
 library(here)
 library(roxygen2)
 library(scales)
+library(plotly)
+library(shiny)
 
 
 abnormalities.drop <- function(tib) {
@@ -375,7 +377,7 @@ get.InflowOutflowTibble <- function(tib,
 
 gen_ds.InflowOutflowTibble <- get.InflowOutflowTibble
 
-bar_plot.InflowOutflow <- function(tib, pal_option='D') {
+bar_plot.InflowOutflow <- function(tib, pal_option='D', data_values=FALSE) {
   # Bar Chart showing opening and closing
   plt <- ggplot2::ggplot() +
     ggplot2::geom_bar(data = tib,
@@ -384,14 +386,18 @@ bar_plot.InflowOutflow <- function(tib, pal_option='D') {
     ggplot2::geom_bar(data = tib,
                       aes(x=FloorDate, y=-Closed, fill=Priority),
                       stat = "identity")  +
-    xlab("Date") +
-    ylab("Count") +
+    xlab("Date") + ylab("Count") +
     ggplot2::scale_x_date(date_labels="%b/%y",
                           date_breaks = "8 weeks",
                           minor_breaks = "2 weeks") +
     theme_minimal() +
     theme(legend.position="bottom",
           legend.direction="horizontal")
+  
+  # ifelse(hasArg(data_values) && data_values == TRUE,
+  #        plt <- plt + geom_text(size = 3, 
+  #                               position = position_stack(vjust = 0.5)),
+  #        plt <- plt)
   
   ifelse(hasArg(pal_option),
     plt <- plt + scale_fill_viridis(discrete=TRUE, option=pal_option),
@@ -441,9 +447,35 @@ line_plotly.InflowOutflow.CumSum <- function(tib, pal_option = 'D') {
       colors = plotly_color_scale
     )
   }
-  #plt <- plt %>% layout(legend = list(orientation = 'h'))
   
-  plt
+  plt <- plt %>% plotly::config(displaylogo = FALSE,
+                                modeBarButtonsToRemove = c("zoomIn2d",
+                                                           "zoomOut2d"))
+  
+  plt <- plt %>% plotly::layout(legend = 
+                                  list(orientation = 'h', 
+                                       xanchor = 'center', 
+                                       x = 0.5,
+                                       y = -0.2))
+  
+  fillPage(
+    tags$style(type = "text/css",
+               ".plot-fill { width: 80%; height: 100%; }",
+               ".center {
+                          display: block; 
+                          margin-left: auto; 
+                          margin-right: auto;
+                        }",
+               "#left_plt { float: left; background-color: #ccffcc;  }",
+               "#right_plt { float: right; background-color: #ccffcc; }",
+               "#center_plt { float: center; background-color: #ccffcc; }"
+    ),
+    div(id = "center_plt", class= "plot-fill center",
+       plt
+    ),
+    theme = "www/bootstrap.css"
+    #, padding = 10
+  )
 }
 
 
@@ -500,3 +532,45 @@ areaPlot.WiP <- function(tib, pal_option = 'D') {
   
   plt
 }
+
+
+bar_plot.InflowOutflowWithValues <-
+  function(tib,
+           pal_option = 'D',
+           data_values = FALSE) {
+    # Bar Chart showing opening and closing
+    plt <- ggplot2::ggplot() +
+      ggplot2::geom_bar(data = tib,
+                        aes(x = FloorDate, y = Opened, fill = Priority),
+                        stat = "identity") +
+      ggplot2::geom_bar(data = tib,
+                        aes(
+                          x = FloorDate,
+                          y = -Closed,
+                          fill = Priority
+                        ),
+                        stat = "identity")  +
+      xlab("Date") + ylab("Count") +
+      ggplot2::scale_x_date(
+        date_labels = "%b/%y",
+        date_breaks = "8 weeks",
+        minor_breaks = "2 weeks"
+      ) +
+      theme_minimal() +
+      theme(legend.position = "bottom",
+            legend.direction = "horizontal")
+    
+    # ifelse(hasArg(data_values) && data_values == TRUE,
+    #        plt <- plt + geom_text(size = 3,
+    #                               position = position_stack(vjust = 0.5)),
+    #        plt <- plt)
+    
+    ifelse(
+      hasArg(pal_option),
+      plt <-
+        plt + scale_fill_viridis(discrete = TRUE, option = pal_option),
+      plt <- plt + colour_scale
+    )
+    
+    plt
+  }
