@@ -89,7 +89,8 @@ The plot below shows the number of epics closed in every week, marked separately
 ```{r opics-epics-wk-agg-fig, include=TRUE, out.width='80%', fig.asp=.75, fig.align='center', echo=FALSE}
 
 bar_plot.NumClosed_For_FloorDate(
-  gen_ds.NumClosed_For_FloorDate(epics.closed, priority_based=TRUE)
+  gen_ds.NumClosed_For_FloorDate(epics.closed, priority_based=TRUE),
+  data_values = TRUE
 )
 
 ```
@@ -124,7 +125,8 @@ The plot below shows the number of stories closed in every week, marked separate
 ```{r opics-stories-wk-agg-fig, include=TRUE, out.width='80%', fig.asp=.75, fig.align='center', fig.cap="Number of Stories Closed in a Week colored by Priority", echo=FALSE}
 
 bar_plot.NumClosed_For_FloorDate(
-  gen_ds.NumClosed_For_FloorDate(stories.closed, priority_based=TRUE)
+  gen_ds.NumClosed_For_FloorDate(stories.closed, priority_based=TRUE),
+  data_values = TRUE
 )
 
 ```
@@ -182,12 +184,15 @@ flow.epics.merged <- tib.all %>%
 line_plot.InflowOutflow.CumSum(flow.epics.merged)
 ```
 
+```{r opics-epics-inflow-outflow-datatable, include=TRUE, echo=FALSE, out.width='80%',fig.asp=.75, fig.align="center", eval=TRUE }
+DT::datatable(flow.epics.merged, filter='top')
+```
 ##### Stories
 
 ```{r opics-stories-inflow-outflow, include=TRUE, echo=FALSE, out.width='80%', fig.asp=.75, fig.align='center',  eval=TRUE}
 flow.stories.merged <- tib.all %>%
   get.InflowOutflowTibble.Story(include_priority = TRUE)
- bar_plot.InflowOutflow(flow.stories.merged)
+ bar_plot.InflowOutflow(flow.stories.merged, data_values = TRUE)
 ```
 
 ```{r opics-stories-inflow-outflow-cumsumm, out.width='80%', fig.asp=.75, fig.align='center',include=TRUE, echo=FALSE, eval=TRUE}
