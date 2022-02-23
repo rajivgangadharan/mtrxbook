@@ -89,22 +89,6 @@ violin_plot.CycleTimeVsPriority <- function(tib, pal_option = 'D') {
   plt
 }
 
-bar_plot.NumClosed_For_FloorDate <- function(tib, pal_option="D") {
-  plt <- ggplot(tib, aes(x = FloorDate,
-                         y = NumClosed,
-                         fill = Priority)) +
-    geom_bar(stat = "identity") +
-    xlab("Reporting Period") +
-    ylab("Throughput") +
-    scale_x_date(date_labels = "%b/%y", date_breaks = "8 weeks") +
-    theme_minimal() +
-    theme(legend.position = "bottom")
-  
-  ifelse(hasArg(plt_option),
-         plt <- plt + scale_fill_viridis(discrete = TRUE, option = pal_option),
-         plt <- plt + colour_scale)
-  plt
-}
 
 
 line_plot.NumClosed_For_FloorDate <-
@@ -141,6 +125,8 @@ line_plot.NumClosed_For_FloorDate <-
     plt
   }
 
+# Alias to align with function
+line_plot.Throughput <- line_plot.NumClosed_For_FloorDate
 
 #' @name compute.FloorDateBased.Aggregates
 #' @title Generates a tibble with the Date, Priority and Number of Work Items
@@ -334,15 +320,10 @@ get.InflowOutflowTibble <- function(tib,
   if (missing(itemType))
     stop("itemType is required, has to be one of Story, Epic or Defect")
 
-  tib.closed <- tib %>%
-    finmetrics::exclude.OpenCases() %>%
-    finmetrics::compute.Week(col_closed_date = col_closed_date) %>%
-    filter(Type == itemType)
+  tib.closed <- tib %>% gen_ds.ClosedCases(itemType = itemType)
   
-  tib.opened <-
-    tib %>%
-    finmetrics::compute.Week(col_closed_date = col_opened_date) %>%
-    filter(Type == itemType)
+  tib.opened <- tib %>% gen_ds.OpenedCases(itemType = itemType)
+    
 
   if (include_priority == TRUE) {
     flow.closed <- tib.closed %>%
@@ -358,21 +339,24 @@ get.InflowOutflowTibble <- function(tib,
       transform("Opened" = NumClosed.x, "Closed" = NumClosed.y) %>%
       select(-c("NumClosed.x", "NumClosed.y"))
     flow.merged$Priority <- as.factor(flow.merged$Priority)
+    flow.merged[is.na(flow.merged)] <- 0
+    flow.merged.cumsum <- flow.merged %>% group_by(Priority) %>% 
+      mutate(CumSum = cumsum(Opened - Closed))
   } else {
     flow.opened <- tib.opened %>% compute.FloorDateBased.Aggregates()
     flow.closed <-
       tib.closed %>% compute.FloorDateBased.Aggregates()
-    flow.merged <- inner_join(flow.opened,
+    flow.merged <- full_join(flow.opened,
                              flow.closed,
                              by = c("FloorDate"),
                              sort = "FloorDate") %>%
       transform("Opened" = NumClosed.x, "Closed" = NumClosed.y) %>%
       select(-c("NumClosed.x", "NumClosed.y"))
-  }
   flow.merged[is.na(flow.merged)] <- 0
-  flow.merged %>% group_by(Priority) %>% 
-    mutate(CumSum = cumsum(Opened - Closed)) %>% 
-    arrange(FloorDate, Priority)
+  flow.merged.cumsum <- flow.merged  %>% mutate(CumSum = cumsum(Opened - Closed)) 
+  }
+
+  flow.merged.cumsum
 }
 
 gen_ds.InflowOutflowTibble <- get.InflowOutflowTibble
@@ -474,7 +458,6 @@ cycleTimeQuantiles <- function(tib) {
                              Max=max))
 }
 
-
 #' @name areaPlot.WiP
 #' @title Generates an areaPlot to visualize with in progress (WiP)
 #' @import viridis
@@ -504,8 +487,22 @@ areaPlot.WiP <- function(tib, pal_option = 'D') {
   
   plt
 }
+# For adhering to the naming convention
+area_plot.WiP <- areaPlot.WiP
 
-
+#' @name bar_plot.InflowOutflow
+#' @title Generates a bidirectional plot showing the throughout
+#' @import viridis
+#' @importFrom  ggplot2 ggplot
+#' @description
+#' Takes a tibble with the Open and Closed variables and creates a bidirectional
+#' stacked plot coloured by priority. 
+#' @param tib  Input tibble with variables Date and WIPInDays
+#' @param pal_option Decides if viridis has to be used if yes which palette
+#' @param data_values Controls if the plot will have values 
+#' @param plt_scale optional scale 
+#' @param plt_theme optional theme
+#' @export
 bar_plot.InflowOutflow <-
   function(tib,
            pal_option = 'D',
@@ -571,3 +568,92 @@ bar_plot.InflowOutflow <-
     
     plt
   }
+
+
+bar_plot.NumClosed_For_FloorDate <- function(tib,
+                                             pal_option = 'D',
+                                             data_values = FALSE, 
+                                             plt_scale, 
+                                             plt_theme) {
+  p <- ggplot2::ggplot(tib, aes(x = FloorDate, fill = Priority))
+  bar_closed <- ggplot2::geom_bar(aes(y = NumClosed, fill = Priority),
+                                  stat = "identity")
+  bar_closed_with_values <- geom_bar(stat = "identity", aes(y = NumClosed))
+  bartext_closed_with_values <- geom_text(
+    data = subset(tib, NumClosed != 0),
+    size = 2,
+    aes(y = NumClosed, label = NumClosed),
+    position = position_stack(vjust = 0.5)
+  ) 
+  
+  if(missing(plt_scale)) {
+    plt_scale <-  ggplot2::scale_x_date(
+      date_labels = "%b/%y",
+      date_breaks = "8 weeks",
+      minor_breaks = "2 weeks"
+    ) 
+  }
+  
+  if(missing(plt_theme)) {
+    plt_theme <- theme_minimal() +
+      theme(legend.position = "bottom",
+            legend.direction = "horizontal") 
+  }
+  
+  
+  ifelse(hasArg(data_values) && data_values == FALSE,
+         plt <- p + 
+           bar_closed +
+           xlab("Date") + ylab("Count") +
+           plt_scale + 
+           plt_theme,
+         
+         plt <- p + 
+           bar_closed_with_values + bartext_closed_with_values + 
+           xlab("Date") + ylab("Count") + 
+           plt_scale +
+           plt_theme
+  )
+  
+  ifelse(hasArg(pal_option),
+         plt <- plt + scale_fill_viridis(discrete = TRUE, option = pal_option),
+         plt <- plt + colour_scale
+  )
+  
+  plt
+}
+
+# Alias to align with function
+bar_plot.Throughput <- bar_plot.NumClosed_For_FloorDate
+
+gen_ds.ClosedCases <- function(tib, itemType, dt_col="cldt") {
+  if (missing(itemType))
+    stop("itemType should be provided as a scalar or vector")
+  
+  tib.closed <- tib %>%
+    finmetrics::exclude.OpenCases() %>%
+    finmetrics::compute.Week(col_closed_date = dt_col)
+    
+  ifelse(is.vector(itemType), 
+    tib.closed <- tib.closed %>% filter(Type %in% itemType),
+    tib.closed <- tib.closed %>% filter(Type == itemType)
+  )
+  
+  tib.closed
+}
+
+gen_ds.OpenedCases <- function(tib, itemType, dt_col="crdt") {
+  if (missing(itemType))
+    stop("itemType should be provided as a scalar or vector")
+  
+  tib.opened <-
+    tib %>%
+    finmetrics::compute.Week(col_closed_date = dt_col)
+ 
+  ifelse(is.vector(itemType), 
+         tib.opened <- tib.opened %>% filter(Type %in% itemType),
+         tib.opened <- tib.opened %>% filter(Type == itemType)
+  )
+  
+  tib.opened
+}
