@@ -377,34 +377,6 @@ get.InflowOutflowTibble <- function(tib,
 
 gen_ds.InflowOutflowTibble <- get.InflowOutflowTibble
 
-bar_plot.InflowOutflow <- function(tib, pal_option='D', data_values=FALSE) {
-  # Bar Chart showing opening and closing
-  plt <- ggplot2::ggplot() +
-    ggplot2::geom_bar(data = tib,
-                      aes(x=FloorDate, y=Opened, fill=Priority),
-                      stat = "identity") +
-    ggplot2::geom_bar(data = tib,
-                      aes(x=FloorDate, y=-Closed, fill=Priority),
-                      stat = "identity")  +
-    xlab("Date") + ylab("Count") +
-    ggplot2::scale_x_date(date_labels="%b/%y",
-                          date_breaks = "8 weeks",
-                          minor_breaks = "2 weeks") +
-    theme_minimal() +
-    theme(legend.position="bottom",
-          legend.direction="horizontal")
-  
-  # ifelse(hasArg(data_values) && data_values == TRUE,
-  #        plt <- plt + geom_text(size = 3, 
-  #                               position = position_stack(vjust = 0.5)),
-  #        plt <- plt)
-  
-  ifelse(hasArg(pal_option),
-    plt <- plt + scale_fill_viridis(discrete=TRUE, option=pal_option),
-    plt <- plt + colour_scale)
-  
-  plt 
-}
 
 line_plot.InflowOutflow.CumSum <- function(tib, pal_option = 'D') {
   plt <-
@@ -534,41 +506,66 @@ areaPlot.WiP <- function(tib, pal_option = 'D') {
 }
 
 
-bar_plot.InflowOutflowWithValues <-
+bar_plot.InflowOutflow <-
   function(tib,
            pal_option = 'D',
-           data_values = FALSE) {
-    # Bar Chart showing opening and closing
-    plt <- ggplot2::ggplot() +
-      ggplot2::geom_bar(data = tib,
-                        aes(x = FloorDate, y = Opened, fill = Priority),
-                        stat = "identity") +
-      ggplot2::geom_bar(data = tib,
-                        aes(
-                          x = FloorDate,
-                          y = -Closed,
-                          fill = Priority
-                        ),
-                        stat = "identity")  +
-      xlab("Date") + ylab("Count") +
-      ggplot2::scale_x_date(
+           data_values = FALSE, plt_scale, plt_theme) {
+
+    p <- ggplot2::ggplot(tib, aes(x = FloorDate, fill = Priority))
+    
+    bar_open <- ggplot2::geom_bar(aes(y = Opened, fill = Priority),
+                        stat = "identity")
+    bar_closed <- ggplot2::geom_bar(aes(y = -Closed, fill = Priority),
+                        stat = "identity")
+    
+    bar_open_with_values <- geom_bar(stat = "identity", aes(y = Opened))
+    bartext_open_with_values <-  geom_text(
+      data = subset(tib, Opened != 0),
+      size = 2,
+      aes(y = Opened, label = Opened),
+      position = position_stack(vjust = 0.5)
+    )
+    bar_closed_with_values <- geom_bar(stat = "identity", aes(y = -Closed))
+    bartext_closed_with_values <- geom_text(
+      data = subset(tib, Closed != 0),
+      size = 2,
+      aes(y = -Closed, label = Closed),
+      position = position_stack(vjust = 0.5)
+    ) 
+    
+    if(missing(plt_scale)) {
+      plt_scale <-  ggplot2::scale_x_date(
         date_labels = "%b/%y",
         date_breaks = "8 weeks",
         minor_breaks = "2 weeks"
-      ) +
-      theme_minimal() +
-      theme(legend.position = "bottom",
-            legend.direction = "horizontal")
+      ) 
+    }
     
-    # ifelse(hasArg(data_values) && data_values == TRUE,
-    #        plt <- plt + geom_text(size = 3,
-    #                               position = position_stack(vjust = 0.5)),
-    #        plt <- plt)
+    if(missing(plt_theme)) {
+      plt_theme <- theme_minimal() +
+        theme(legend.position = "bottom",
+              legend.direction = "horizontal") 
+    }
     
-    ifelse(
-      hasArg(pal_option),
-      plt <-
-        plt + scale_fill_viridis(discrete = TRUE, option = pal_option),
+    
+    ifelse(hasArg(data_values) && data_values == FALSE,
+      plt <- p + 
+        bar_open + 
+        bar_closed +
+        xlab("Date") + ylab("Count") +
+        plt_scale + 
+        plt_theme,
+      
+      plt <- p + 
+        bar_open_with_values + bartext_open_with_values + 
+        bar_closed_with_values + bartext_closed_with_values + 
+        xlab("Date") + ylab("Count") + 
+        plt_scale +
+        plt_theme
+    )
+
+    ifelse(hasArg(pal_option),
+      plt <- plt + scale_fill_viridis(discrete = TRUE, option = pal_option),
       plt <- plt + colour_scale
     )
     
