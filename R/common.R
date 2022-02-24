@@ -340,7 +340,8 @@ get.InflowOutflowTibble <- function(tib,
       select(-c("NumClosed.x", "NumClosed.y"))
     flow.merged$Priority <- as.factor(flow.merged$Priority)
     flow.merged[is.na(flow.merged)] <- 0
-    flow.merged.cumsum <- flow.merged %>% group_by(Priority) %>% 
+    flow.merged.cumsum <- flow.merged %>% 
+      arrange(FloorDate,Priority) %>% group_by(Priority) %>% 
       mutate(CumSum = cumsum(Opened - Closed))
   } else {
     flow.opened <- tib.opened %>% compute.FloorDateBased.Aggregates()
@@ -352,8 +353,10 @@ get.InflowOutflowTibble <- function(tib,
                              sort = "FloorDate") %>%
       transform("Opened" = NumClosed.x, "Closed" = NumClosed.y) %>%
       select(-c("NumClosed.x", "NumClosed.y"))
-  flow.merged[is.na(flow.merged)] <- 0
-  flow.merged.cumsum <- flow.merged  %>% mutate(CumSum = cumsum(Opened - Closed)) 
+    flow.merged[is.na(flow.merged)] <- 0
+    flow.merged.cumsum <- flow.merged  %>% 
+      arrange(FloorDate) %>% 
+      mutate(CumSum = cumsum(Opened - Closed)) 
   }
 
   flow.merged.cumsum
