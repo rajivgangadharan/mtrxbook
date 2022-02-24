@@ -6,6 +6,9 @@ Rscript -e 'install.packages(c("dplyr", "lubridate"),dependencies = TRUE, repos 
 Rscript -e 'install.packages(c("readxl","knitr","kableExtra", "devtools"),dependencies = TRUE, repos = "http://cran.us.r-project.org")'
 Rscript -e 'install.packages(c("blogdown", "bookdown", "downlit", "here", "bslib", "plotly", "shiny"), dependencies = TRUE,repos = "http://cran.us.r-project.org")'
 Rscript -e 'devtools::install_github("rajivgangadharan/finmetrics")'
+
+# Newly added please add to the Dockerfile
+Rscript -e 'install.packages(c("scales"), dependencies = TRUE,repos = "http://cran.us.r-project.org")'
 Rscript -e 'install.packages("webshot",dependencies=TRUE, repos="http://cran.us.r-project.org")'
 Rscript -e 'webshot::install_phantomjs(force=TRUE)'
 
