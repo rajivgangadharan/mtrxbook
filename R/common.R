@@ -135,18 +135,12 @@ line_plot.Throughput <- line_plot.NumClosed_For_FloorDate
 #' generates a tibble with the Date, Priority and Number of Work Items
 #' Closed
 #' @param tib_df Tibble containing complete cases
-#' @param col_date Column Name of with the Floor Date derived from
-#' the Closed Date
-#' @param col_priority Column name of the priority of the closed items
 #' @seealso compute.Week()
 #' get.FilteredTibble(fileName="data/example_delivery.csv") %>%  get.ClosedCases() %>% compute.CycleTime() %>% compute.Week() %>% compute.PriorityBased.ClosureAggregates()
 #' @return A tibble aggregated on the col_date (Default: FloorDate)
 #' @export
-compute.FloorDateBased.Aggregates <-
-  function(tib,
-           col_date = "FloorDate",
-           col_priority = "Priority",
-           include_priority = FALSE) {
+compute.FloorDateBased.Aggregates <- 
+  function(tib, include_priority = FALSE) {
     tib_result <- tibble()
     ifelse(
       include_priority == FALSE,
@@ -311,17 +305,43 @@ get.InflowOutflowTibble.Epic <- function(tib,
   get.InflowOutflowTibble(tib, itemType = "Epic", include_priority)
 }
 
+merge.InflowOutFlow.withPriority <- function(inflow, outflow) {
+  stopifnot({is_tibble(inflow); is_tibble(outflow)})
+  flow.merged <- full_join(
+    flow.opened,
+    flow.closed,
+    by = c("FloorDate", "Priority"),
+    sort = "FloorDate"
+  ) %>%
+    transform("Opened" = NumClosed.x, "Closed" = NumClosed.y) %>%
+    select(-c("NumClosed.x", "NumClosed.y"))
+  flow.merged$Priority <- as.factor(flow.merged$Priority)
+  flow.merged[is.na(flow.merged)] <- 0
+  flow.merged
+}
+
+merge.InflowOutFlow.withOutPriority <- function(inflow, outflow) {
+  stopifnot({is_tibble(inflow); is_tibble(outflow)})
+  flow.opened <- tib.opened %>% compute.FloorDateBased.Aggregates()
+  flow.closed <-
+    tib.closed %>% compute.FloorDateBased.Aggregates()
+  flow.merged <- full_join(flow.opened,
+                           flow.closed,
+                           by = c("FloorDate"),
+                           sort = "FloorDate") %>%
+    transform("Opened" = NumClosed.x, "Closed" = NumClosed.y) %>%
+    select(-c("NumClosed.x", "NumClosed.y"))
+  flow.merged[is.na(flow.merged)] <- 0
+}
+
 
 get.InflowOutflowTibble <- function(tib,
                                     itemType,
-                                    include_priority = TRUE,
-                                    col_opened_date = "crdt",
-                                    col_closed_date = "cldt") {
+                                    include_priority = TRUE) {
   if (missing(itemType))
     stop("itemType is required, has to be one of Story, Epic or Defect")
 
   tib.closed <- tib %>% gen_ds.ClosedCases(itemType = itemType)
-  
   tib.opened <- tib %>% gen_ds.OpenedCases(itemType = itemType)
     
 
@@ -629,13 +649,13 @@ bar_plot.NumClosed_For_FloorDate <- function(tib,
 # Alias to align with function
 bar_plot.Throughput <- bar_plot.NumClosed_For_FloorDate
 
-gen_ds.ClosedCases <- function(tib, itemType, dt_col="cldt") {
+gen_ds.ClosedCases <- function(tib, itemType)  {
   if (missing(itemType))
     stop("itemType should be provided as a scalar or vector")
   
   tib.closed <- tib %>%
     finmetrics::exclude.OpenCases() %>%
-    finmetrics::compute.Week(col_closed_date = dt_col)
+    finmetrics::compute.Week()
     
   ifelse(is.vector(itemType), 
     tib.closed <- tib.closed %>% filter(Type %in% itemType),
@@ -651,7 +671,7 @@ gen_ds.OpenedCases <- function(tib, itemType, dt_col="crdt") {
   
   tib.opened <-
     tib %>%
-    finmetrics::compute.Week(col_closed_date = dt_col)
+    finmetrics::compute.Week(dt_col)
  
   ifelse(is.vector(itemType), 
          tib.opened <- tib.opened %>% filter(Type %in% itemType),
