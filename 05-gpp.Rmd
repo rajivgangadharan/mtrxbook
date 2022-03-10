@@ -80,7 +80,7 @@ tabulate.PriorityBasedCycleTimeStat(stories.closed)
 ```{r gpp-completed-epics-week-fig, out.width='80%', fig.asp=.75, fig.align='center', fig.cap = "Closed Epics by Week", echo=FALSE}
 
 line_plot.NumClosed_For_FloorDate(
-  gen_ds.NumClosed_For_FloorDate(epics.closed)
+  gen_ds.NumClosed_For_FloorDate(epics.closed), show_trend = TRUE
 )
 
 ```
@@ -100,7 +100,7 @@ bar_plot.NumClosed_For_FloorDate(
 Gives and indication of the densities especially the occurrence of multiple maxima in the data. This can be due to multiple categories of work items which may be investigated further. 
 
 ```{r gpp-density-distibution-closed-epics-fig, include=TRUE, echo=FALSE, out.width="80%", fig.align="center", fig.asp=.75, fig.cap="Priority based Density Distribution", message=FALSE, warning=FALSE}
-epics.closed %>% violin_plot.CycleTimeVsPriority(pal_option = 'D')
+epics.closed %>% violin_plot.CycleTimeVsPriority()
 ```
 
 
@@ -113,7 +113,7 @@ week which is an indication of how stable the throughput is.
 ```{r gpp-completed-items-week-fig, out.width='80%', fig.asp=.75, fig.align='center', echo=FALSE}
 
 line_plot.NumClosed_For_FloorDate(
-  gen_ds.NumClosed_For_FloorDate(stories.closed)
+  gen_ds.NumClosed_For_FloorDate(stories.closed), show_trend = TRUE
 )
 
 ```
@@ -135,7 +135,7 @@ Gives and indication of the densities especially the occurrence of multiple maxi
 
 ```{r gpp-density-distibution-closed-stories-fig, include=TRUE, echo=FALSE, out.width="80%", fig.align="center", fig.asp=.75, fig.cap="Priority based Density Distribution", message=FALSE, warning=FALSE}
 
-stories.closed %>% violin_plot.CycleTimeVsPriority(pal_option = 'D')
+stories.closed %>% violin_plot.CycleTimeVsPriority()
 
 ```
 
@@ -286,14 +286,14 @@ tabulate.PriorityBasedCycleTimeStat(tib_defects.closed.high_and_critical, tab_ca
 defects_ncount_by_week <-
   gen_ds.NumClosed_For_FloorDate(tib_defects.closed)
 
-  line_plot.NumClosed_For_FloorDate(defects_ncount_by_week, plt_caption="Closure per Week for All Defects", pal_option="B")
+  line_plot.NumClosed_For_FloorDate(defects_ncount_by_week, plt_caption="Closure per Week for All Defects", show_trend = TRUE)
 ```
 
 
 ```{r gpp-defects-fig-completed-hnc-defects-week, out.width='80%', fig.asp=.75, fig.align='center', fig.cap = "Closed defects by Week", echo=FALSE}
 hnc_defects_ncount_by_week <-
   gen_ds.NumClosed_For_FloorDate(tib_defects.closed.high_and_critical)
-line_plot.NumClosed_For_FloorDate(hnc_defects_ncount_by_week, plt_caption="Closure per Week - High and Critical Defects")
+line_plot.NumClosed_For_FloorDate(hnc_defects_ncount_by_week, plt_caption="Closure per Week - High and Critical Defects", show_trend = TRUE)
 ```
 
 ```{r gpp-defects-wk-agg, include=TRUE, echo=FALSE}
