@@ -1,8 +1,9 @@
-# Opics (New)
+# Global Pay Plus (New)
 
 ## Delivery Metrics 
 
 ```{r gpp-setup, include=FALSE}
+devtools::install_github("rajivgangadharan/finmetrics", ref='fix-dplyr-variables-issue', force = TRUE)
 source("./R/common.R")
 ```
 
@@ -224,8 +225,10 @@ tib_defects.all$Priority <- factor(
 )
 
 tib_defects.closed <-
-  tib_defects.all %>% finmetrics::exclude.OpenCases() %>% 
-  finmetrics::compute.CycleTime() %>% finmetrics::compute.Week()
+  tib_defects.all %>% 
+  finmetrics::exclude.OpenCases() %>% 
+  finmetrics::compute.CycleTime() %>% 
+  finmetrics::compute.Week()
 
 tib_defects.closed.high_and_critical <- tib_defects.closed %>% 
   filter(Priority == "High" | Priority == "Critical")
@@ -355,3 +358,6 @@ bar_plot.InflowOutflow(flow.defects.merged, data_values = TRUE)
 
 ```
 
+```{r gpp-defects-inflow-outflow-datatable, include=TRUE, echo=FALSE, out.width='80%',fig.asp=.75, fig.align="center", eval=TRUE }
+DT::datatable(flow.defects.merged, filter='top')
+```
