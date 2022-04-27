@@ -8,12 +8,4 @@ bookdown::gitbook:
       after: |
         <li><a href="https://scm-git-azi.finastra.com/projects/POR/repos/portfolio-insights/browse" target="blank">Published using Portfolio Insights Communication Infrastructure</a></li>
     edit: https://scm-git-azi.finastra.com/projects/POR/repos/portfolio-insights/edit/master/%s
-    download: ["pdf", "epub"]
-bookdown::pdf_book:
-  includes:
-    in_header: preamble.tex
-  latex_engine: xelatex
-  citation_package: natbib
-  keep_tex: yes
-bookdown::epub_book: default
 bookdown::bs4_book: default
