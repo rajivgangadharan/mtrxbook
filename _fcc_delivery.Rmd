@@ -1,0 +1,208 @@
+## Delivery Metrics 
+
+```{r fcc-setup, include=FALSE}
+devtools::install_github("rajivgangadharan/finmetrics", ref='fix-dplyr-variables-issue', force = TRUE)
+source("./R/common.R")
+```
+
+```{r fcc-delivery-setup, include=FALSE}
+
+# Create the tibble
+tib.all <-
+  finmetrics::get.FilteredTibble(here::here("inst/extdata",
+                                            "fcc_delivery.csv"),
+                                 date_from = Sys.Date() - months(18))
+
+tib.all$Priority <- 
+  factor(tib.all$Priority, 
+                           levels=c("Critical",
+                                    "High", 
+                                    "Medium", 
+                                    "Low", 
+                                    "None"), 
+                           ordered = TRUE)
+
+tib <- tib.all %>%
+  finmetrics::exclude.OpenCases() %>% 
+  finmetrics::compute.CycleTime() %>%
+  finmetrics::compute.Week()
+
+# Taking a one year subset after calculating cycle time for 18 months.
+tib <- tib %>% filter(crdt > Sys.Date() - months(12))
+
+# Collecting only stories, filtering out abnormalities
+stories.closed <- tib %>% filter(cldt > crdt) %>% filter(Type == "Story")
+# Collecting only Epics, filtering out abnormalities
+epics.closed <- tib %>% filter(cldt > crdt) %>% filter(Type == "Epic")
+
+
+```
+
+###  Cycle Time
+
+
+#### Summary
+
+The below [Five-number summary](https://en.wikipedia.org/wiki/Five-number_summary) will provide a high level distribution of the cycle times. 
+
+```{r fcc-cycle-time-summ, include=TRUE, out.width='80%', echo=FALSE}
+tabulate.TypeAndPriorityBasedCycleTimeStat(tib)
+```
+
+#### Epics
+
+
+```{r fcc-epics-cycle-time-trend-fig, include=TRUE, out.width='80%', fig.asp=.75, fig.align='center', fig.cap="Cycle Time Trend", echo=FALSE}
+loess_plot.CycleTimeTrend(epics.closed, col_date="crdt")
+```
+
+
+```{r fcc-epics-summary-metrics, include=TRUE, out.width='80%', echo=FALSE}
+ tabulate.PriorityBasedCycleTimeStat(epics.closed)
+```
+
+#### Stories
+
+```{r fcc-stories-cycle-time-trend-fig, include=TRUE, out.width='80%', fig.asp=.75, fig.align='center', fig.cap="Cycle Time Trend", echo=FALSE}
+
+loess_plot.CycleTimeTrend(stories.closed, col_date="crdt")
+
+```
+
+
+```{r fcc-story-summary-metrics, include=TRUE, out.width='80%', echo=FALSE}
+
+tabulate.PriorityBasedCycleTimeStat(stories.closed)
+
+```
+
+### Throughput
+
+#### Epics
+
+```{r fcc-completed-epics-week-fig, out.width='80%', fig.asp=.75, fig.align='center', fig.cap = "Closed Epics by Week", echo=FALSE}
+
+line_plot.NumClosed_For_FloorDate(
+  gen_ds.NumClosed_For_FloorDate(epics.closed)
+)
+
+```
+
+The plot below shows the number of epics closed in every week, marked separately in different color based on priority
+
+```{r fcc-epics-wk-agg-fig, include=TRUE, out.width='80%', fig.asp=.75, fig.align='center', echo=FALSE}
+
+bar_plot.NumClosed_For_FloorDate(
+  gen_ds.NumClosed_For_FloorDate(epics.closed, priority_based=TRUE),
+  data_values = TRUE
+)
+
+```
+
+- Density distribution
+
+Gives and indication of the densities especially the occurrence of multiple maxima in the data. This can be due to multiple categories of work items which may be investigated further. 
+
+```{r fcc-density-distibution-closed-epics-fig, include=TRUE, echo=FALSE, out.width="80%", fig.align="center", fig.asp=.75, fig.cap="Priority based Density Distribution", message=FALSE, warning=FALSE}
+epics.closed %>% violin_plot.CycleTimeVsPriority()
+```
+
+
+#### Stories
+
+
+Tells us the number of work items (stories) completed aggregated for each 
+week which is an indication of how stable the throughput is.
+
+```{r fcc-completed-items-week-fig, out.width='80%', fig.asp=.75, fig.align='center', echo=FALSE}
+
+line_plot.NumClosed_For_FloorDate(
+  gen_ds.NumClosed_For_FloorDate(stories.closed), 
+  show_trend = TRUE
+)
+
+```
+
+The plot below shows the number of stories closed in every week, marked separately in different color based on priority
+
+
+```{r fcc-stories-wk-agg-fig, include=TRUE, out.width='80%', fig.asp=.75, fig.align='center', fig.cap="Number of Stories Closed in a Week colored by Priority", echo=FALSE}
+
+bar_plot.NumClosed_For_FloorDate(
+  gen_ds.NumClosed_For_FloorDate(stories.closed, priority_based=TRUE),
+  data_values = TRUE
+)
+
+```
+
+- Density distribution
+
+Gives and indication of the densities especially the occurrence of multiple maxima in the data. This can be due to multiple categories of work items which may be investigated further. 
+
+```{r fcc-density-distibution-closed-stories-fig, include=TRUE, echo=FALSE, out.width="80%", fig.align="center", fig.asp=.75, fig.cap="Priority based Density Distribution", message=FALSE, warning=FALSE}
+
+stories.closed %>% violin_plot.CycleTimeVsPriority()
+
+```
+
+
+### Flow
+
+#### Work in Progress (WiP)
+
+##### Epics 
+
+```{r fcc-epics-work-in-progress, include=TRUE, echo=FALSE}
+tib_epics_work_in_progress <- tib.all %>%
+  dplyr::filter(Type == 'Epic') %>% finmetrics::compute.WIP()
+
+```
+
+```{r fcc-epics-work-in-progress-fig , include=TRUE, echo=FALSE, out.width='80%', fig.asp=.75, fig.cap="WiP in Days", fig.align='center', cache=TRUE}
+areaPlot.WiP(tib_epics_work_in_progress)
+```
+
+##### Stories
+
+```{r fcc-stories-work-in-progress, include=TRUE, echo=FALSE}
+tib_stories_work_in_progress <- tib.all %>%
+  dplyr::filter(Type == 'Story') %>% finmetrics::compute.WIP()
+
+```
+
+```{r fcc-stories-work-in-progress-fig , include=TRUE, echo=FALSE, out.width='80%', fig.asp=.75, fig.cap="WiP in Days", fig.align='center', cache=TRUE}
+areaPlot.WiP(tib_stories_work_in_progress)
+```
+
+#### Inflow/OutFlow
+
+##### Epics
+
+```{r fcc-epics-inflow-outflow, include=TRUE, echo=FALSE, out.width='80%', fig.align="center", fig.asp=.75, eval=TRUE}
+flow.epics.merged <- tib.all %>%
+  get.InflowOutflowTibble.Epic(include_priority = TRUE)
+ bar_plot.InflowOutflow(flow.epics.merged)
+```
+
+```{r fcc-epics-inflow-outflow-cumsumm, include=TRUE, echo=FALSE, out.width='80%', fig.asp=.75, fig.align="center", eval=TRUE}
+line_plot.InflowOutflow.CumSum(flow.epics.merged)
+```
+
+```{r fcc-epics-inflow-outflow-cumsumm-interactive, include=TRUE, echo=FALSE, out.width='80%', fig.asp=.75, fig.align="center", eval=TRUE}
+line_plotly.InflowOutflow.CumSum(flow.epics.merged)
+```
+
+```{r fcc-epics-inflow-outflow-datatable, include=TRUE, echo=FALSE, out.width='80%',fig.asp=.75, fig.align="center", eval=TRUE }
+DT::datatable(flow.epics.merged, filter='top')
+```
+##### Stories
+
+```{r fcc-stories-inflow-outflow, include=TRUE, echo=FALSE, out.width='80%', fig.asp=.75, fig.align='center',  eval=TRUE}
+flow.stories.merged <- tib.all %>%
+  get.InflowOutflowTibble.Story(include_priority = TRUE)
+ bar_plot.InflowOutflow(flow.stories.merged, data_values = TRUE)
+```
+
+```{r fcc-stories-inflow-outflow-cumsumm, out.width='80%', fig.asp=.75, fig.align='center',include=TRUE, echo=FALSE, eval=TRUE}
+line_plot.InflowOutflow.CumSum(flow.stories.merged)
+```

@@ -1,0 +1,162 @@
+## Defect Metrics
+
+```{r gpp-defects-setup, include=FALSE}
+# Empty
+```
+
+
+```{r gpp-defect-metrics-setup, echo=FALSE, include=TRUE, message=FALSE, warning=FALSE}
+tib_defects.all <-
+  finmetrics::get.FilteredTibble(here::here("inst/extdata",
+                                            "gpp_defects.csv"),
+                                 date_from = Sys.Date() - months(18)) %>%
+  filter(Type == "Defect")
+
+tib_defects.all$Priority <- factor(
+  tib_defects.all$Priority,
+  levels = c("Critical", "High", "Medium", "Low", "None"),
+  ordered = TRUE
+)
+
+tib_defects.closed <-
+  tib_defects.all %>% 
+  finmetrics::exclude.OpenCases() %>% 
+  finmetrics::compute.CycleTime() %>% 
+  finmetrics::compute.Week()
+
+# Taking a one year subset after calculating cycle time for 18 months.
+tib_defects.closed <- tib_defects.closed %>% 
+  filter(crdt > Sys.Date() - months(12))
+
+tib_defects.closed.high_and_critical <- tib_defects.closed %>% 
+  filter(Priority == "High" | Priority == "Critical")
+```
+
+###  Cycle Time
+
+Below is the [5 Number Summary](https://en.wikipedia.org/wiki/Five-number_summary) of the entire data set. The 75% Qartile value is significant because that is the number which you can typically see as the turn around time (TAT) to service a defect.
+
+#### Summary
+
+```{r gpp-defects-tab-cycle-time-basic-stats, out.width="80%", echo=FALSE, include=TRUE}
+
+tabulate.CycleTimeStat(tib_defects.closed, tab_caption = "5 Number Summary")
+
+```
+
+
+#### Cycle Time Trend
+
+This reflects the capacity/capability of the team to resolve across all 
+priorities as indicated by a trend.
+
+```{r gpp-defects-cycle-time-trend-all, include=TRUE, echo=FALSE , out.width='80%', fig.asp=.75, fig.align='center', fig.cap="All Severities"}
+loess_plot.CycleTimeTrend(tib_defects.closed, col_date = "crdt")
+
+```
+
+
+#### 5 Number Summary
+
+```{r gpp-defects-cycle-time-summary, include=TRUE, out.width='80%', echo=FALSE}
+tabulate.PriorityBasedCycleTimeStat(tib_defects.closed,
+                                    tab_caption = "All Severities")
+```
+
+```{r gpp-defects-cycle-time-trend-for-hnc, include=TRUE, echo=FALSE , out.width='80%', fig.asp=.75, fig.align='center', fig.cap="High and Critical"}
+
+loess_plot.CycleTimeTrend(tib_defects.closed.high_and_critical, col_date = "crdt", plt_caption="Ability to focus on High and Critical Severities")
+
+```
+
+
+```{r gpp-defects-cycle-time-stat-for-high-and-critical, include=TRUE, echo=FALSE }
+tabulate.PriorityBasedCycleTimeStat(tib_defects.closed.high_and_critical, tab_caption="5 Number Summary for High and Critical Defects")
+```
+
+
+### Throughput
+
+
+```{r gpp-defects-closed-metric-for-each-week, include=TRUE, echo=FALSE, out.width="80%", fig.asp=0.75, fig.align='center', fig.cap="Closure metrics - All Defects"}
+defects_ncount_by_week <-
+  gen_ds.NumClosed_For_FloorDate(tib_defects.closed)
+
+line_plot.NumClosed_For_FloorDate(defects_ncount_by_week,
+                                  plt_caption = "Closure/Week", 
+                                  show_trend = TRUE)
+```
+
+
+```{r gpp-defects-fig-completed-hnc-defects-week, out.width='80%', fig.asp=.75, fig.align='center', fig.cap = "Closed defects by Week", echo=FALSE}
+hnc_defects_ncount_by_week <-
+  gen_ds.NumClosed_For_FloorDate(tib_defects.closed.high_and_critical)
+line_plot.NumClosed_For_FloorDate(hnc_defects_ncount_by_week, 
+                                  plt_caption="Closure/Week - High & Critical",
+                                  show_trend = TRUE)
+```
+
+```{r gpp-defects-wk-agg, include=TRUE, echo=FALSE}
+tib_defects_wk_agg <-
+  tib_defects.closed %>%
+  gen_ds.NumClosed_For_FloorDate(priority_based = TRUE)
+
+tib_hnc_defects_wk_agg <-
+  tib_defects.closed.high_and_critical %>%
+  gen_ds.NumClosed_For_FloorDate(priority_based = TRUE)
+```
+
+
+The plot below shows the number of defects closed in every week, marked separately in different color based on priority
+
+
+```{r gpp-defects-all-wk-agg-fig, include=TRUE, echo=FALSE, out.width="80%", fig.caption="Closure Count - All Priorities", fig.asp=0.75, fig.align="center"}
+bar_plot.NumClosed_For_FloorDate(tib_defects_wk_agg)
+```
+
+```{r gpp-defects-fig-hnc-wk-agg, include=TRUE, echo=FALSE, out.width="80%", fig.caption="Closure Count - High and Critical Priorities", fig.asp=0.75, fig.align="center"}
+bar_plot.NumClosed_For_FloorDate(tib_hnc_defects_wk_agg)
+```
+
+```{r gpp-defects-tab-weekly-aggregate, echo=FALSE}
+DT::datatable(tib_defects_wk_agg, filter='top')
+```
+
+- Density distribution
+
+Gives and indication of the densities especially the occurrence of multiple maxima in the data. This can be due to multiple categories of work items which may be investigated further. Below are the violin plots for all defects and also high and critical defects.
+
+```{r gpp-defects-fig-densdist-closed-overall, include=TRUE, echo=FALSE, out.width="80%", fig.align="center", fig.cap="Priority based Density Distribution", message=FALSE, warning=FALSE}
+tib_defects.closed %>% violin_plot.CycleTimeVsPriority()
+```
+
+```{r gpp-defects-fig-densdist-closed-hnc, include=TRUE, echo=FALSE, out.width="80%", fig.align="center", fig.cap="Priority based Density Distribution", message=FALSE, warning=FALSE}
+# tib_defects.closed.high_and_critical %>% violin_plot.CycleTimeVsPriority(pal_option = 'B')
+```
+
+### Flow
+
+#### Work in Progress (WiP)
+
+```{r gpp-defects-fig-areaplot-wip, include=TRUE, echo=FALSE, out.width="80%", fig.asp=.75, fig.caption="Work in Progress", fig.align='center', cache=TRUE}
+  tib_defects_work_in_progress <- tib_defects.all %>%
+    dplyr::filter(Type == 'Defect') %>% finmetrics::compute.WIP()
+  areaPlot.WiP(tib_defects_work_in_progress)
+```
+
+#### Inflow Outflow
+
+```{r gpp-defects-inflow-outflow, include=TRUE, echo=FALSE,out.width='80%', fig.asp=.75, fig.align='center', eval=TRUE}
+flow.defects.merged <- tib_defects.all %>%
+  get.InflowOutflowTibble.Defect(include_priority = TRUE)
+bar_plot.InflowOutflow(flow.defects.merged, data_values = TRUE)
+```
+
+```{r gpp-defects-inflow-outflow-cumsumm, include=TRUE, echo=FALSE, out.width='80%', fig.asp=.75, fig.align='center',eval=TRUE}
+      line_plot.InflowOutflow.CumSum(flow.defects.merged)
+
+```
+
+```{r gpp-defects-inflow-outflow-datatable, include=TRUE, echo=FALSE, out.width='80%',fig.asp=.75, fig.align="center", eval=TRUE }
+DT::datatable(flow.defects.merged, filter='top')
+```

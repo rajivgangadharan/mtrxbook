@@ -1,0 +1,13 @@
+# Essence (Solution)
+
+
+
+```{r essence-setup-common, include=FALSE}
+source("./R/common.R")
+```
+
+
+
+```{r, child=c('_essence_delivery.Rmd','_essence_defects.Rmd')}
+
+```
