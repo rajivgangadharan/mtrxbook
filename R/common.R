@@ -694,20 +694,22 @@ gen_ds.OpenedCases <- function(tib, itemType, dt_col="crdt") {
 #' @param plt_scale optional scale 
 #' @param plt_theme optional theme
 #' @export
-
 bar_plot_grouped.NumWorkItemsAcrossProjects <- function(tib,
                                              pal_option = 'D',
                                              data_values = FALSE, 
                                              plt_scale, 
                                              plt_theme) {
-  p <- ggplot2::ggplot(tib, aes(x = FloorDate, fill = Priority))
-  bar_closed <- ggplot2::geom_bar(aes(y = Count, fill = Project),
-                                  stat = "identity")
-  bar_closed_with_values <- geom_bar(stat = "identity", aes(y = Count))
-  bartext_closed_with_values <- geom_text(
+  # Defining base plot and x axes
+  p <- ggplot2::ggplot(tib, aes(x = FloorDate))
+  
+  # Bars project colored differently
+  bar <- ggplot2::geom_bar(stat = "identity", aes(y = Count, 
+                               fill = Project))
+  
+  bartext_with_values <- geom_text(
     data = subset(tib, Count != 0),
     size = 2,
-    aes(y = NumClosed, label = Count),
+    aes(y = Count, label = Count),
     position = position_stack(vjust = 0.5)
   ) 
 
@@ -728,13 +730,13 @@ bar_plot_grouped.NumWorkItemsAcrossProjects <- function(tib,
   
   ifelse(hasArg(data_values) && data_values == FALSE,
          plt <- p + 
-           bar_closed +
+           bar +
            xlab("Date") + ylab("Count") +
            plt_scale + 
            plt_theme,
          
          plt <- p + 
-           bar_closed_with_values + bartext_closed_with_values + 
+           bar + bartext_with_values + 
            xlab("Date") + ylab("Count") + 
            plt_scale +
            plt_theme
