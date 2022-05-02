@@ -680,3 +680,70 @@ gen_ds.OpenedCases <- function(tib, itemType, dt_col="crdt") {
   
   tib.opened
 }
+
+#' @name bar_plot_grouped.NumWorkItemsAcrossProjects
+#' @title Generates a bidirectional plot showing the throughout
+#' @import viridis
+#' @importFrom  ggplot2 ggplot
+#' @description
+#' Takes a tibble with the Open and Closed variables and creates a bidirectional
+#' stacked plot coloured by priority. 
+#' @param tib  Input tibble with variables Date and WIPInDays
+#' @param pal_option Decides if viridis has to be used if yes which palette
+#' @param data_values Controls if the plot will have values 
+#' @param plt_scale optional scale 
+#' @param plt_theme optional theme
+#' @export
+
+bar_plot_grouped.NumWorkItemsAcrossProjects <- function(tib,
+                                             pal_option = 'D',
+                                             data_values = FALSE, 
+                                             plt_scale, 
+                                             plt_theme) {
+  p <- ggplot2::ggplot(tib, aes(x = FloorDate, fill = Priority))
+  bar_closed <- ggplot2::geom_bar(aes(y = Count, fill = Project),
+                                  stat = "identity")
+  bar_closed_with_values <- geom_bar(stat = "identity", aes(y = Count))
+  bartext_closed_with_values <- geom_text(
+    data = subset(tib, Count != 0),
+    size = 2,
+    aes(y = NumClosed, label = Count),
+    position = position_stack(vjust = 0.5)
+  ) 
+
+  if(missing(plt_scale)) {
+    plt_scale <-  ggplot2::scale_x_date(
+      date_labels = "%b/%y",
+      date_breaks = "8 weeks",
+      minor_breaks = "2 weeks"
+    ) 
+  }
+  
+  if(missing(plt_theme)) {
+    plt_theme <- theme_minimal() +
+      theme(legend.position = "bottom",
+            legend.direction = "horizontal") 
+  }
+  
+  
+  ifelse(hasArg(data_values) && data_values == FALSE,
+         plt <- p + 
+           bar_closed +
+           xlab("Date") + ylab("Count") +
+           plt_scale + 
+           plt_theme,
+         
+         plt <- p + 
+           bar_closed_with_values + bartext_closed_with_values + 
+           xlab("Date") + ylab("Count") + 
+           plt_scale +
+           plt_theme
+  )
+  
+  ifelse(hasArg(pal_option),
+         plt <- plt + scale_fill_viridis(discrete = TRUE, option = pal_option),
+         plt <- plt + colour_scale
+  )
+  
+  plt
+}
