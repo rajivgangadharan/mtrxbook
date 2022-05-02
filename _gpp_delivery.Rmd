@@ -1,7 +1,6 @@
 ## Delivery Metrics 
 
 ```{r gpp-setup, include=FALSE}
-devtools::install_github("rajivgangadharan/finmetrics", force = TRUE)
 source("./R/common.R")
 ```
 
