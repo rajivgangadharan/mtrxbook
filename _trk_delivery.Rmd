@@ -7,13 +7,13 @@ source("./R/common.R")
 ```{r trk-delivery-setup, include=FALSE}
 
 # Create the tibble
-tib.complete_cases <-
+tib.all <-
   finmetrics::get.FilteredTibble(here::here("inst/extdata",
                                             "trk_delivery.csv"),
                                  date_from = Sys.Date() - months(18))
 
-tib.complete_cases$Priority <- 
-  factor(tib.complete_cases$Priority, 
+tib.all$Priority <- 
+  factor(tib.all$Priority, 
                            levels=c("Critical",
                                     "High", 
                                     "Medium", 
@@ -21,7 +21,7 @@ tib.complete_cases$Priority <-
                                     "None"), 
                            ordered = TRUE)
 
-tib <- tib.complete_cases %>%
+tib <- tib.all %>%
   finmetrics::exclude.OpenCases() %>% 
   finmetrics::compute.CycleTime() %>%
   finmetrics::compute.Week()
@@ -152,7 +152,7 @@ stories.closed %>% violin_plot.CycleTimeVsPriority()
 ##### Epics 
 
 ```{r trk-epics-work-in-progress, include=TRUE, echo=FALSE}
-tib_epics_work_in_progress <- tib.complete_cases %>%
+tib_epics_work_in_progress <- tib.all %>%
   dplyr::filter(Type == 'Epic') %>% finmetrics::compute.WIP()
 
 ```
@@ -164,7 +164,7 @@ areaPlot.WiP(tib_epics_work_in_progress)
 ##### Stories
 
 ```{r trk-stories-work-in-progress, include=TRUE, echo=FALSE}
-tib_stories_work_in_progress <- tib.complete_cases %>%
+tib_stories_work_in_progress <- tib.all %>%
   dplyr::filter(Type == 'Story') %>% finmetrics::compute.WIP()
 
 ```
@@ -178,7 +178,7 @@ areaPlot.WiP(tib_stories_work_in_progress)
 ##### Epics
 
 ```{r trk-epics-inflow-outflow, include=TRUE, echo=FALSE, out.width='80%', fig.align="center", fig.asp=.75, eval=TRUE}
-flow.epics.merged <- tib.complete_cases %>%
+flow.epics.merged <- tib.all %>%
   get.InflowOutflowTibble.Epic(include_priority = TRUE)
  bar_plot.InflowOutflow(flow.epics.merged)
 ```
@@ -197,7 +197,7 @@ DT::datatable(flow.epics.merged, filter='top')
 ##### Stories
 
 ```{r trk-stories-inflow-outflow, include=TRUE, echo=FALSE, out.width='80%', fig.asp=.75, fig.align='center',  eval=TRUE}
-flow.stories.merged <- tib.complete_cases %>%
+flow.stories.merged <- tib.all %>%
   get.InflowOutflowTibble.Story(include_priority = TRUE)
  bar_plot.InflowOutflow(flow.stories.merged, data_values = TRUE)
 ```
