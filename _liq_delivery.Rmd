@@ -10,8 +10,7 @@ source("./R/common.R")
 tib.all <-
   finmetrics::get.FilteredTibble(here::here("inst/extdata",
                                             "liq_delivery.csv"),
-                                 date_from = Sys.Date() - months(18),
-                                select_closed = TRUE)
+                                 date_from = Sys.Date() - months(18))
 
 tib.all$Priority <- 
   factor(tib.all$Priority, 
