@@ -12,11 +12,15 @@ tib_defects.all <-
                                  date_from = Sys.Date() - months(18)) %>%
   filter(Type == "Defect")
 
+tib_defects.anom <- anomalities(tib_defects.all, action = 'SELECT')
+tib_defects.all <- anomalities(tib_defects.all, action = 'REJECT')
+
 tib_defects.all$Priority <- factor(
   tib_defects.all$Priority,
   levels = c("Critical", "High", "Medium", "Low", "None"),
   ordered = TRUE
 )
+
 
 tib_defects.closed <-
   tib_defects.all %>% 
@@ -26,10 +30,29 @@ tib_defects.closed <-
 
 # Taking a one year subset after calculating cycle time for 18 months.
 tib_defects.closed <- tib_defects.closed %>% 
-  filter(crdt > Sys.Date() - months(12))
+  filter(crdt > Sys.Date() - months(18))
 
 tib_defects.closed.high_and_critical <- tib_defects.closed %>% 
   filter(Priority == "High" | Priority == "Critical")
+
+
+```
+
+### Overview 
+
+#### Distribution of priorities across projects
+
+
+```{r trk-defects-summary-treemap-data, include=FALSE, echo=FALSE}
+
+tib_defects_treemap <- tib_defects.all %>% group_by(Project, Priority) %>% summarize(Count= n())
+
+```
+
+```{r trk-defects-summary-treemap-fig, include=TRUE, out.width='80%', fig.asp=.75, fig.align='center', fig.cap="Summary Tree Map", echo=FALSE, message = FALSE}
+
+treemap_d3(tib_treemap = tib_defects_treemap, title = "Distribution of defect priorities across projects")
+
 ```
 
 ###  Cycle Time

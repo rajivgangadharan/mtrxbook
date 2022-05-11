@@ -4,6 +4,7 @@
 
 ```{r trk-setup-common, include=FALSE}
 source("./R/common.R")
+library(finmetrics)
 ```
 
 

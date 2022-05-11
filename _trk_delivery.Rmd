@@ -1,7 +1,8 @@
 ## Delivery Metrics 
 
 ```{r trk-setup, include=FALSE}
-source("./R/common.R")
+# Empty
+
 ```
 
 ```{r trk-delivery-setup, include=FALSE}
@@ -12,6 +13,9 @@ tib.all <-
                                             "trk_delivery.csv"),
                                  date_from = Sys.Date() - months(18))
 
+tib.anom <- anomalities(tib.all, action = 'SELECT')
+tib.all <- anomalities(tib.all, action = 'REJECT')
+
 tib.all$Priority <- 
   factor(tib.all$Priority, 
                            levels=c("Critical",
@@ -21,13 +25,14 @@ tib.all$Priority <-
                                     "None"), 
                            ordered = TRUE)
 
+
 tib <- tib.all %>%
   finmetrics::exclude.OpenCases() %>% 
   finmetrics::compute.CycleTime() %>%
   finmetrics::compute.Week()
 
 # Taking a one year subset after calculating cycle time for 18 months.
-tib <- tib %>% filter(crdt > Sys.Date() - months(12))
+tib <- tib %>% filter(crdt > Sys.Date() - months(18))
 
 # Collecting only stories, filtering out abnormalities
 stories.closed <- tib %>% filter(cldt > crdt) %>% filter(Type == "Story")
@@ -37,12 +42,35 @@ epics.closed <- tib %>% filter(cldt > crdt) %>% filter(Type == "Epic")
 
 ```
 
+### Overview 
+
+#### Distribution of priorities across projects
+
+The [Tree Map](https://en.wikipedia.org/wiki/Treemapping) of the entire dataset
+provides an excellent solution level overview of the total number of 
+work items that flowed in across different projects and priorities.
+
+
+```{r trk-summary-treemap-data, include=FALSE, echo=FALSE}
+
+tib_treemap <- tib.all %>% group_by(Project, Priority) %>% summarize(Count= n())
+
+```
+
+```{r trk-summary-treemap-fig, include=TRUE, out.width='80%', fig.asp=.75, fig.align='center', fig.cap="Summary Tree Map", echo=FALSE, message = FALSE}
+
+treemap_d3(tib_treemap = tib_treemap, title = "Distribution of priorities across projects")
+
+```
+
+
 ###  Cycle Time
 
 
 #### Summary
 
-The below [Five-number summary](https://en.wikipedia.org/wiki/Five-number_summary) will provide a high level distribution of the cycle times. 
+The below [Five-number summary](https://en.wikipedia.org/wiki/Five-number_summary) 
+will provide a high level distribution of the cycle times. 
 
 ```{r trk-cycle-time-summ, include=TRUE, out.width='80%', echo=FALSE}
 tabulate.TypeAndPriorityBasedCycleTimeStat(tib)

@@ -28,14 +28,34 @@ library(scales)
 library(plotly)
 library(shiny)
 
+if(!require(remotes)) install.packages("remotes",repos = "http://cran.us.r-project.org")
+remotes::install_github("d3treeR/d3treeR")
+library(d3treeR)
+library(treemap)
 
-abnormalities.drop <- function(tib) {
+
+
+
+anomalities <- function(tib, action = 'REJECT') {
+  tib.anom <- tib %>% group_by(Key) %>%
+    mutate(Anom = ifelse(cldt <= crdt, "Yes", "No")) %>% ungroup()
+  ifelse(
+    action == 'REJECT',
+    t <- tib.anom %>% filter(Anom == "No" | is.na(Anom)),
+    t <- tib.anom %>% filter(Anom =="Yes")
+  )
+  t
+}
+
+
+abnormalities.select <- function(tib) {
   tib %>% filter(cldt < crdt)
 }
 
-non_abnormalities.select <- function(tib) {
-  filter(tib, cldt > crdt)
+abnormalities.drop <- function(tib) {
+  filter(tib, cldt >= crdt)
 }
+
 
 # Viridis scale
 viridis_indigo=       '#440154FF'
@@ -89,6 +109,41 @@ violin_plot.CycleTimeVsPriority <- function(tib, pal_option = 'D') {
   plt
 }
 
+treemap_d3 <- function(tib_treemap, 
+                       groups = c("Project","Priority"), 
+                       size = "Count", 
+                       title = "",
+                       palette = "Spectral",
+                       rootname = "",
+                       interactive = TRUE) {
+  
+  plt <- treemap(
+    tib_treemap,
+    index = groups,
+    vSize = size,
+    type = "index",
+    title = title,
+    palette = palette,
+    # Background
+    bg.labels = 0,
+    # Borders:
+    border.col = c("black", "grey", "grey"),
+    border.lwds = c(2, 1, 0.5),
+    fontsize.labels = c(10, 7, 5),
+    fontcolor.labels = c("black", "black", "black"),
+    fontface.labels = 1,
+    align.labels = list(c("center", "center"), 
+                        c("left", "top"), 
+                        c("right", "bottom")),
+    overlap.labels = 0.5,
+    inflate.labels = F
+  )
+  plt <- ifelse(interactive == TRUE,
+    d3tree2(plt, rootname = rootname),
+    plt)
+  
+  invisible(plt)
+}
 
 
 line_plot.NumClosed_For_FloorDate <-
