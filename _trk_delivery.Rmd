@@ -48,18 +48,21 @@ epics.closed <- tib %>% filter(cldt > crdt) %>% filter(Type == "Epic")
 
 The [Tree Map](https://en.wikipedia.org/wiki/Treemapping) of the entire dataset
 provides an excellent solution level overview of the total number of 
-work items that flowed in across different projects and priorities.
+work items (Stories) that flowed in across different projects and priorities.
 
 
-```{r trk-summary-treemap-data, include=FALSE, echo=FALSE}
+```{r trk-stories-summary-treemap-data, include=FALSE, echo=FALSE}
 
-tib_treemap <- tib.all %>% group_by(Project, Priority) %>% summarize(Count= n())
+tib_stories_treemap <- tib.all %>% 
+  filter(Type == 'Story') %>%
+  group_by(Project, Priority) %>% 
+  summarize(Count= n(), .groups = 'drop' )
 
 ```
 
-```{r trk-summary-treemap-fig, include=TRUE, out.width='80%', fig.asp=.75, fig.align='center', fig.cap="Summary Tree Map", echo=FALSE, message = FALSE}
+```{r trk-stories-summary-treemap-fig, include=TRUE, out.width='80%', fig.asp=.75, fig.align='center', fig.cap="Summary Tree Map", echo=FALSE, message = FALSE}
 
-treemap_d3(tib_treemap = tib_treemap, title = "Distribution of priorities across projects")
+treemap_d3(tib_treemap = tib_stories_treemap, title = "Distribution of priorities across projects")
 
 ```
 

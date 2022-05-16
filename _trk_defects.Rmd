@@ -45,7 +45,8 @@ tib_defects.closed.high_and_critical <- tib_defects.closed %>%
 
 ```{r trk-defects-summary-treemap-data, include=FALSE, echo=FALSE}
 
-tib_defects_treemap <- tib_defects.all %>% group_by(Project, Priority) %>% summarize(Count= n())
+tib_defects_treemap <- tib_defects.all %>% group_by(Project, Priority) %>% 
+  summarize(Count= n(), .groups='drop')
 
 ```
 

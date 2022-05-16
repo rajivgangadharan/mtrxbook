@@ -296,6 +296,8 @@ tabulate.TypeAndPriorityBasedCycleTimeStat <-
   function(tib, tab_caption = "5 Number Summary") {
     compute.CycleTimeStat <- function() {
       tib.summ <- tib %>% dplyr::group_by(Type, Priority) %>%
+        dplyr::mutate(Count = n()) %>%
+        dplyr::group_by(Type, Priority, Count) %>%
         dplyr::summarise_at(vars(cylt),
                      list(Min=min,
                           LoQ= ~quantile(., probs = 0.25),
