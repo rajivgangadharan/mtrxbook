@@ -2,7 +2,7 @@ FROM rocker/verse AS R_dev_build
 WORKDIR /usr/src
 RUN apt-get update
 RUN apt install -y pandoc-citeproc texlive-binaries
-RUN Rscript -e 'install.packages(c("readxl","knitr","kableExtra", "devtools"),dependencies = TRUE)'
+RUN Rscript -e 'install.packages(c("readxl","knitr","kableExtra", "devtools", "remotes"), dependencies = TRUE)'
 
 FROM R_dev_build AS R_data_manip_build
 RUN Rscript -e 'install.packages(c("dplyr", "lubridate"),dependencies = TRUE)'
@@ -16,7 +16,10 @@ FROM R_palette_build AS R_rmarkdown_build
 RUN apt remove -y hugo
 RUN Rscript -e 'blogdown::install_hugo()'
 RUN Rscript -e 'install.packages(c("blogdown", "bookdown", "downlit", "here", "bslib", "plotly", "shiny"),dependencies = TRUE)'
+RUN Rscript -e 'remotes::install_github("d3treeR/d3treeR", upgrade=c("never"))'
+RUN Rscript -e 'install.packages(c("treemap"), dependencies = TRUE)'
 
+# All custom libs will go here
 FROM R_rmarkdown_build AS R_custom_lib_build
 RUN Rscript -e 'devtools::install_github("rajivgangadharan/finmetrics")'
 
