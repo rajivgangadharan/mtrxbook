@@ -58,7 +58,9 @@ treemap_d3(tib_treemap = tib_defects_treemap, title = "Distribution of defect pr
 
 ###  Cycle Time
 
-Below is the [5 Number Summary](https://en.wikipedia.org/wiki/Five-number_summary) of the entire data set. The 75% Qartile value is significant because that is the number which you can typically see as the turn around time (TAT) to service a defect.
+Below is the [5 Number Summary](https://en.wikipedia.org/wiki/Five-number_summary) 
+of the entire data set. The 75% Qartile value is significant because that is the 
+number which you can typically see as the turn around time (TAT) to service a defect.
 
 #### Summary
 
@@ -83,8 +85,9 @@ loess_plot.CycleTimeTrend(tib_defects.closed, col_date = "crdt")
 #### 5 Number Summary
 
 ```{r trk-defects-cycle-time-summary, include=TRUE, out.width='80%', echo=FALSE}
-tabulate.PriorityBasedCycleTimeStat(tib_defects.closed,
-                                    tab_caption = "All Severities")
+# tabulate.PriorityBasedCycleTimeStat(tib_defects.closed,
+#                                     tab_caption = "All Severities")
+tabulate.TypeAndPriorityBasedCycleTimeStat(tib, tab_caption = "All Severities")
 ```
 
 ```{r trk-defects-cycle-time-trend-for-hnc, include=TRUE, echo=FALSE , out.width='80%', fig.asp=.75, fig.align='center', fig.cap="High and Critical"}

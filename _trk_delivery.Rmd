@@ -74,9 +74,13 @@ treemap_d3(tib_treemap = tib_stories_treemap, title = "Distribution of prioritie
 
 The below [Five-number summary](https://en.wikipedia.org/wiki/Five-number_summary) 
 will provide a high level distribution of the cycle times. 
+The 75% Qartile value is significant because that is the number which you can 
+typically see as the turn around time (TAT) to service a work item.
 
 ```{r trk-cycle-time-summ, include=TRUE, out.width='80%', echo=FALSE}
+
 tabulate.TypeAndPriorityBasedCycleTimeStat(tib)
+
 ```
 
 #### Epics
