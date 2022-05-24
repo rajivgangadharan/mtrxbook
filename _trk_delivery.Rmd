@@ -133,13 +133,14 @@ bar_plot.NumClosed_For_FloorDate(
 
 ```
 
-- Density distribution
 
-Gives and indication of the densities especially the occurrence of multiple maxima in the data. This can be due to multiple categories of work items which may be investigated further. 
+<!-- - Density distribution -->
 
-```{r trk-density-distibution-closed-epics-fig, include=TRUE, echo=FALSE, out.width="80%", fig.align="center", fig.asp=.75, fig.cap="Priority based Density Distribution", message=FALSE, warning=FALSE}
-epics.closed %>% violin_plot.CycleTimeVsPriority()
-```
+<!-- Gives and indication of the densities especially the occurrence of multiple maxima in the data. This can be due to multiple categories of work items which may be investigated further.  -->
+
+<!-- ```{r trk-density-distibution-closed-epics-fig, include=TRUE, echo=FALSE, out.width="80%", fig.align="center", fig.asp=.75, fig.cap="Priority based Density Distribution", message=FALSE, warning=FALSE} -->
+<!-- epics.closed %>% violin_plot.CycleTimeVsPriority() -->
+<!-- ``` -->
 
 
 #### Stories
