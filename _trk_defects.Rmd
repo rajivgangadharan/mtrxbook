@@ -98,7 +98,8 @@ loess_plot.CycleTimeTrend(tib_defects.closed.high_and_critical, col_date = "crdt
 
 
 ```{r trk-defects-cycle-time-stat-for-high-and-critical, include=TRUE, echo=FALSE }
-tabulate.PriorityBasedCycleTimeStat(tib_defects.closed.high_and_critical, tab_caption="5 Number Summary for High and Critical Defects")
+# tabulate.PriorityBasedCycleTimeStat(tib_defects.closed.high_and_critical, tab_caption="5 Number Summary for High and Critical Defects")
+tabulate.TypeAndPriorityBasedCycleTimeStat(tib_defects.closed.high_and_critical, tab_caption="5 Number Summary for High and Critical Defects")
 ```
 
 

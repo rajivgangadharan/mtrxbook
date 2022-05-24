@@ -92,7 +92,8 @@ loess_plot.CycleTimeTrend(epics.closed, col_date="crdt")
 
 
 ```{r trk-epics-summary-metrics, include=TRUE, out.width='80%', echo=FALSE}
- tabulate.PriorityBasedCycleTimeStat(epics.closed)
+ # tabulate.PriorityBasedCycleTimeStat(epics.closed)
+ tabulate.TypeAndPriorityBasedCycleTimeStat(epics.closed)
 ```
 
 #### Stories
@@ -106,7 +107,8 @@ loess_plot.CycleTimeTrend(stories.closed, col_date="crdt")
 
 ```{r trk-story-summary-metrics, include=TRUE, out.width='80%', echo=FALSE}
 
-tabulate.PriorityBasedCycleTimeStat(stories.closed)
+#tabulate.PriorityBasedCycleTimeStat(stories.closed)
+tabulate.TypeAndPriorityBasedCycleTimeStat(stories.closed)
 
 ```
 

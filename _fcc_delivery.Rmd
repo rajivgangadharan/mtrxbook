@@ -1,7 +1,8 @@
 ## Delivery Metrics 
 
 ```{r fcc-setup, include=FALSE}
-source("./R/common.R")
+# Empty
+
 ```
 
 ```{r fcc-delivery-setup, include=FALSE}
@@ -12,6 +13,9 @@ tib.all <-
                                             "fcc_delivery.csv"),
                                  date_from = Sys.Date() - months(18))
 
+tib.anom <- anomalities(tib.all, action = 'SELECT')
+tib.all <- anomalities(tib.all, action = 'REJECT')
+
 tib.all$Priority <- 
   factor(tib.all$Priority, 
                            levels=c("Critical",
@@ -21,13 +25,14 @@ tib.all$Priority <-
                                     "None"), 
                            ordered = TRUE)
 
+
 tib <- tib.all %>%
   finmetrics::exclude.OpenCases() %>% 
   finmetrics::compute.CycleTime() %>%
   finmetrics::compute.Week()
 
 # Taking a one year subset after calculating cycle time for 18 months.
-tib <- tib %>% filter(crdt > Sys.Date() - months(12))
+tib <- tib %>% filter(crdt > Sys.Date() - months(18))
 
 # Collecting only stories, filtering out abnormalities
 stories.closed <- tib %>% filter(cldt > crdt) %>% filter(Type == "Story")
@@ -42,10 +47,15 @@ epics.closed <- tib %>% filter(cldt > crdt) %>% filter(Type == "Epic")
 
 #### Summary
 
-The below [Five-number summary](https://en.wikipedia.org/wiki/Five-number_summary) will provide a high level distribution of the cycle times. 
+The below [Five-number summary](https://en.wikipedia.org/wiki/Five-number_summary) 
+will provide a high level distribution of the cycle times. 
+The 75% Qartile value is significant because that is the number which you can 
+typically see as the turn around time (TAT) to service a work item.
 
 ```{r fcc-cycle-time-summ, include=TRUE, out.width='80%', echo=FALSE}
+
 tabulate.TypeAndPriorityBasedCycleTimeStat(tib)
+
 ```
 
 #### Epics
@@ -57,7 +67,8 @@ loess_plot.CycleTimeTrend(epics.closed, col_date="crdt")
 
 
 ```{r fcc-epics-summary-metrics, include=TRUE, out.width='80%', echo=FALSE}
- tabulate.PriorityBasedCycleTimeStat(epics.closed)
+ # tabulate.PriorityBasedCycleTimeStat(epics.closed)
+ tabulate.TypeAndPriorityBasedCycleTimeStat(epics.closed)
 ```
 
 #### Stories
@@ -71,7 +82,8 @@ loess_plot.CycleTimeTrend(stories.closed, col_date="crdt")
 
 ```{r fcc-story-summary-metrics, include=TRUE, out.width='80%', echo=FALSE}
 
-tabulate.PriorityBasedCycleTimeStat(stories.closed)
+#tabulate.PriorityBasedCycleTimeStat(stories.closed)
+tabulate.TypeAndPriorityBasedCycleTimeStat(stories.closed)
 
 ```
 
@@ -98,13 +110,14 @@ bar_plot.NumClosed_For_FloorDate(
 
 ```
 
-- Density distribution
 
-Gives and indication of the densities especially the occurrence of multiple maxima in the data. This can be due to multiple categories of work items which may be investigated further. 
+<!-- - Density distribution -->
 
-```{r fcc-density-distibution-closed-epics-fig, include=TRUE, echo=FALSE, out.width="80%", fig.align="center", fig.asp=.75, fig.cap="Priority based Density Distribution", message=FALSE, warning=FALSE}
-epics.closed %>% violin_plot.CycleTimeVsPriority()
-```
+<!-- Gives and indication of the densities especially the occurrence of multiple maxima in the data. This can be due to multiple categories of work items which may be investigated further.  -->
+
+<!-- ```{r fcc-density-distibution-closed-epics-fig, include=TRUE, echo=FALSE, out.width="80%", fig.align="center", fig.asp=.75, fig.cap="Priority based Density Distribution", message=FALSE, warning=FALSE} -->
+<!-- epics.closed %>% violin_plot.CycleTimeVsPriority() -->
+<!-- ``` -->
 
 
 #### Stories

@@ -12,11 +12,15 @@ tib_defects.all <-
                                  date_from = Sys.Date() - months(18)) %>%
   filter(Type == "Defect")
 
+tib_defects.anom <- anomalities(tib_defects.all, action = 'SELECT')
+tib_defects.all <- anomalities(tib_defects.all, action = 'REJECT')
+
 tib_defects.all$Priority <- factor(
   tib_defects.all$Priority,
   levels = c("Critical", "High", "Medium", "Low", "None"),
   ordered = TRUE
 )
+
 
 tib_defects.closed <-
   tib_defects.all %>% 
@@ -26,15 +30,19 @@ tib_defects.closed <-
 
 # Taking a one year subset after calculating cycle time for 18 months.
 tib_defects.closed <- tib_defects.closed %>% 
-  filter(crdt > Sys.Date() - months(12))
+  filter(crdt > Sys.Date() - months(18))
 
 tib_defects.closed.high_and_critical <- tib_defects.closed %>% 
   filter(Priority == "High" | Priority == "Critical")
+
+
 ```
 
 ###  Cycle Time
 
-Below is the [5 Number Summary](https://en.wikipedia.org/wiki/Five-number_summary) of the entire data set. The 75% Qartile value is significant because that is the number which you can typically see as the turn around time (TAT) to service a defect.
+Below is the [5 Number Summary](https://en.wikipedia.org/wiki/Five-number_summary) 
+of the entire data set. The 75% Qartile value is significant because that is the 
+number which you can typically see as the turn around time (TAT) to service a defect.
 
 #### Summary
 
@@ -52,14 +60,16 @@ priorities as indicated by a trend.
 
 ```{r fcc-defects-cycle-time-trend-all, include=TRUE, echo=FALSE , out.width='80%', fig.asp=.75, fig.align='center', fig.cap="All Severities"}
 loess_plot.CycleTimeTrend(tib_defects.closed, col_date = "crdt")
+
 ```
 
 
 #### 5 Number Summary
 
 ```{r fcc-defects-cycle-time-summary, include=TRUE, out.width='80%', echo=FALSE}
-tabulate.PriorityBasedCycleTimeStat(tib_defects.closed,
-                                    tab_caption = "All Severities")
+# tabulate.PriorityBasedCycleTimeStat(tib_defects.closed,
+#                                     tab_caption = "All Severities")
+tabulate.TypeAndPriorityBasedCycleTimeStat(tib, tab_caption = "All Severities")
 ```
 
 ```{r fcc-defects-cycle-time-trend-for-hnc, include=TRUE, echo=FALSE , out.width='80%', fig.asp=.75, fig.align='center', fig.cap="High and Critical"}
@@ -70,7 +80,8 @@ loess_plot.CycleTimeTrend(tib_defects.closed.high_and_critical, col_date = "crdt
 
 
 ```{r fcc-defects-cycle-time-stat-for-high-and-critical, include=TRUE, echo=FALSE }
-tabulate.PriorityBasedCycleTimeStat(tib_defects.closed.high_and_critical, tab_caption="5 Number Summary for High and Critical Defects")
+# tabulate.PriorityBasedCycleTimeStat(tib_defects.closed.high_and_critical, tab_caption="5 Number Summary for High and Critical Defects")
+tabulate.TypeAndPriorityBasedCycleTimeStat(tib_defects.closed.high_and_critical, tab_caption="5 Number Summary for High and Critical Defects")
 ```
 
 

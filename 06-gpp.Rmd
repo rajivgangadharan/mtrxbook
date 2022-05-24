@@ -1,9 +1,10 @@
-# Global Pay Plus
+# GPP 
 
 
 
 ```{r gpp-setup-common, include=FALSE}
 source("./R/common.R")
+library(finmetrics)
 ```
 
 
