@@ -74,9 +74,13 @@ treemap_d3(tib_treemap = tib_stories_treemap, title = "Distribution of prioritie
 
 The below [Five-number summary](https://en.wikipedia.org/wiki/Five-number_summary) 
 will provide a high level distribution of the cycle times. 
+The 75% Qartile value is significant because that is the number which you can 
+typically see as the turn around time (TAT) to service a work item.
 
 ```{r essence-cycle-time-summ, include=TRUE, out.width='80%', echo=FALSE}
+
 tabulate.TypeAndPriorityBasedCycleTimeStat(tib)
+
 ```
 
 #### Epics
@@ -129,13 +133,14 @@ bar_plot.NumClosed_For_FloorDate(
 
 ```
 
-- Density distribution
 
-Gives and indication of the densities especially the occurrence of multiple maxima in the data. This can be due to multiple categories of work items which may be investigated further. 
+<!-- - Density distribution -->
 
-```{r essence-density-distibution-closed-epics-fig, include=TRUE, echo=FALSE, out.width="80%", fig.align="center", fig.asp=.75, fig.cap="Priority based Density Distribution", message=FALSE, warning=FALSE}
-epics.closed %>% violin_plot.CycleTimeVsPriority()
-```
+<!-- Gives and indication of the densities especially the occurrence of multiple maxima in the data. This can be due to multiple categories of work items which may be investigated further.  -->
+
+<!-- ```{r essence-density-distibution-closed-epics-fig, include=TRUE, echo=FALSE, out.width="80%", fig.align="center", fig.asp=.75, fig.cap="Priority based Density Distribution", message=FALSE, warning=FALSE} -->
+<!-- epics.closed %>% violin_plot.CycleTimeVsPriority() -->
+<!-- ``` -->
 
 
 #### Stories
