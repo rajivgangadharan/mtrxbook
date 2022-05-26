@@ -6,5 +6,5 @@ bookdown::gitbook:
       before: |
         <li><a href="./">Portfolio and Delivery Insights</a></li>
       after: |
-        <li><a href="https://scm-git-azi.finastra.com/projects/POR/repos/portfolio-insights/browse" target="blank">Published using Portfolio Insights Communication Infrastructure</a></li>
-    edit: https://scm-git-azi.finastra.com/projects/POR/repos/portfolio-insights/edit/master/%s
+        <li><a href="https://github.com/" target="blank">Published using Portfolio Insights Communication Infrastructure</a></li>
+    edit: https://github.com/master/%s
