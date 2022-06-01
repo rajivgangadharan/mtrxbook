@@ -1,4 +1,5 @@
 .Rproj.user
+deploy/
 .Rhistory
 .RData
 _publish.R
