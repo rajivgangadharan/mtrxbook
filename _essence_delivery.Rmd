@@ -197,7 +197,7 @@ tib_epics_work_in_progress <- tib.all %>%
 <!-- areaPlot.WiP(tib_epics_work_in_progress) -->
 <!-- ``` -->
 
-##### Stories
+<!-- ##### Stories -->
 
 ```{r essence-stories-work-in-progress, include=TRUE, echo=FALSE}
 tib_stories_work_in_progress <- tib.all %>%
