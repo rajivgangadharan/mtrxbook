@@ -87,7 +87,7 @@ loess_plot.CycleTimeTrend(tib_defects.closed, col_date = "crdt")
 ```{r essence-defects-cycle-time-summary, include=TRUE, out.width='80%', echo=FALSE}
 # tabulate.PriorityBasedCycleTimeStat(tib_defects.closed,
 #                                     tab_caption = "All Severities")
-tabulate.TypeAndPriorityBasedCycleTimeStat(tib, tab_caption = "All Severities")
+tabulate.TypeAndPriorityBasedCycleTimeStat(tib_defects.closed, tab_caption = "All Severities")
 ```
 
 ```{r essence-defects-cycle-time-trend-for-hnc, include=TRUE, echo=FALSE , out.width='80%', fig.asp=.75, fig.align='center', fig.cap="High and Critical"}
@@ -163,13 +163,13 @@ tib_defects.closed %>% violin_plot.CycleTimeVsPriority()
 
 ### Flow
 
-#### Work in Progress (WiP)
+<!-- #### Work in Progress (WiP) -->
 
-```{r essence-defects-fig-areaplot-wip, include=TRUE, echo=FALSE, out.width="80%", fig.asp=.75, fig.caption="Work in Progress", fig.align='center', cache=TRUE}
-  tib_defects_work_in_progress <- tib_defects.all %>%
-    dplyr::filter(Type == 'Defect') %>% finmetrics::compute.WIP()
-  areaPlot.WiP(tib_defects_work_in_progress)
-```
+<!-- ```{r essence-defects-fig-areaplot-wip, include=TRUE, echo=FALSE, out.width="80%", fig.asp=.75, fig.caption="Work in Progress", fig.align='center', cache=TRUE} -->
+<!--   tib_defects_work_in_progress <- tib_defects.all %>% -->
+<!--     dplyr::filter(Type == 'Defect') %>% finmetrics::compute.WIP() -->
+<!--   areaPlot.WiP(tib_defects_work_in_progress) -->
+<!-- ``` -->
 
 #### Inflow Outflow
 

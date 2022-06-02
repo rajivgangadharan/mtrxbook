@@ -1,16 +1,16 @@
 ## Delivery Metrics 
 
-```{r opics-setup, include=FALSE}
+```{r gpp-setup, include=FALSE}
 # Empty
 
 ```
 
-```{r opics-delivery-setup, include=FALSE}
+```{r gpp-delivery-setup, include=FALSE}
 
 # Create the tibble
 tib.all <-
   finmetrics::get.FilteredTibble(here::here("inst/extdata",
-                                            "opics_delivery.csv"),
+                                            "gpp_delivery.csv"),
                                  date_from = Sys.Date() - months(18))
 
 tib.anom <- anomalities(tib.all, action = 'SELECT')
@@ -52,7 +52,7 @@ will provide a high level distribution of the cycle times.
 The 75% Qartile value is significant because that is the number which you can 
 typically see as the turn around time (TAT) to service a work item.
 
-```{r opics-cycle-time-summ, include=TRUE, out.width='80%', echo=FALSE}
+```{r gpp-cycle-time-summ, include=TRUE, out.width='80%', echo=FALSE}
 
 tabulate.TypeAndPriorityBasedCycleTimeStat(tib)
 
@@ -61,26 +61,26 @@ tabulate.TypeAndPriorityBasedCycleTimeStat(tib)
 #### Epics
 
 
-```{r opics-epics-cycle-time-trend-fig, include=TRUE, out.width='80%', fig.asp=.75, fig.align='center', fig.cap="Cycle Time Trend", echo=FALSE}
+```{r gpp-epics-cycle-time-trend-fig, include=TRUE, out.width='80%', fig.asp=.75, fig.align='center', fig.cap="Cycle Time Trend", echo=FALSE}
 loess_plot.CycleTimeTrend(epics.closed, col_date="crdt")
 ```
 
 
-```{r opics-epics-summary-metrics, include=TRUE, out.width='80%', echo=FALSE}
+```{r gpp-epics-summary-metrics, include=TRUE, out.width='80%', echo=FALSE}
  # tabulate.PriorityBasedCycleTimeStat(epics.closed)
  tabulate.TypeAndPriorityBasedCycleTimeStat(epics.closed)
 ```
 
 #### Stories
 
-```{r opics-stories-cycle-time-trend-fig, include=TRUE, out.width='80%', fig.asp=.75, fig.align='center', fig.cap="Cycle Time Trend", echo=FALSE}
+```{r gpp-stories-cycle-time-trend-fig, include=TRUE, out.width='80%', fig.asp=.75, fig.align='center', fig.cap="Cycle Time Trend", echo=FALSE}
 
 loess_plot.CycleTimeTrend(stories.closed, col_date="crdt")
 
 ```
 
 
-```{r opics-story-summary-metrics, include=TRUE, out.width='80%', echo=FALSE}
+```{r gpp-story-summary-metrics, include=TRUE, out.width='80%', echo=FALSE}
 
 #tabulate.PriorityBasedCycleTimeStat(stories.closed)
 tabulate.TypeAndPriorityBasedCycleTimeStat(stories.closed)
@@ -91,7 +91,7 @@ tabulate.TypeAndPriorityBasedCycleTimeStat(stories.closed)
 
 #### Epics
 
-```{r opics-completed-epics-week-fig, out.width='80%', fig.asp=.75, fig.align='center', fig.cap = "Closed Epics by Week", echo=FALSE}
+```{r gpp-completed-epics-week-fig, out.width='80%', fig.asp=.75, fig.align='center', fig.cap = "Closed Epics by Week", echo=FALSE}
 
 line_plot.NumClosed_For_FloorDate(
   gen_ds.NumClosed_For_FloorDate(epics.closed)
@@ -101,7 +101,7 @@ line_plot.NumClosed_For_FloorDate(
 
 The plot below shows the number of epics closed in every week, marked separately in different color based on priority
 
-```{r opics-epics-wk-agg-fig, include=TRUE, out.width='80%', fig.asp=.75, fig.align='center', echo=FALSE}
+```{r gpp-epics-wk-agg-fig, include=TRUE, out.width='80%', fig.asp=.75, fig.align='center', echo=FALSE}
 
 bar_plot.NumClosed_For_FloorDate(
   gen_ds.NumClosed_For_FloorDate(epics.closed, priority_based=TRUE),
@@ -115,7 +115,7 @@ bar_plot.NumClosed_For_FloorDate(
 
 <!-- Gives and indication of the densities especially the occurrence of multiple maxima in the data. This can be due to multiple categories of work items which may be investigated further.  -->
 
-<!-- ```{r opics-density-distibution-closed-epics-fig, include=TRUE, echo=FALSE, out.width="80%", fig.align="center", fig.asp=.75, fig.cap="Priority based Density Distribution", message=FALSE, warning=FALSE} -->
+<!-- ```{r gpp-density-distibution-closed-epics-fig, include=TRUE, echo=FALSE, out.width="80%", fig.align="center", fig.asp=.75, fig.cap="Priority based Density Distribution", message=FALSE, warning=FALSE} -->
 <!-- epics.closed %>% violin_plot.CycleTimeVsPriority() -->
 <!-- ``` -->
 
@@ -126,7 +126,7 @@ bar_plot.NumClosed_For_FloorDate(
 Tells us the number of work items (stories) completed aggregated for each 
 week which is an indication of how stable the throughput is.
 
-```{r opics-completed-items-week-fig, out.width='80%', fig.asp=.75, fig.align='center', echo=FALSE}
+```{r gpp-completed-items-week-fig, out.width='80%', fig.asp=.75, fig.align='center', echo=FALSE}
 
 line_plot.NumClosed_For_FloorDate(
   gen_ds.NumClosed_For_FloorDate(stories.closed), 
@@ -138,7 +138,7 @@ line_plot.NumClosed_For_FloorDate(
 The plot below shows the number of stories closed in every week, marked separately in different color based on priority
 
 
-```{r opics-stories-wk-agg-fig, include=TRUE, out.width='80%', fig.asp=.75, fig.align='center', fig.cap="Number of Stories Closed in a Week colored by Priority", echo=FALSE}
+```{r gpp-stories-wk-agg-fig, include=TRUE, out.width='80%', fig.asp=.75, fig.align='center', fig.cap="Number of Stories Closed in a Week colored by Priority", echo=FALSE}
 
 bar_plot.NumClosed_For_FloorDate(
   gen_ds.NumClosed_For_FloorDate(stories.closed, priority_based=TRUE),
@@ -151,7 +151,7 @@ bar_plot.NumClosed_For_FloorDate(
 
 Gives and indication of the densities especially the occurrence of multiple maxima in the data. This can be due to multiple categories of work items which may be investigated further. 
 
-```{r opics-density-distibution-closed-stories-fig, include=TRUE, echo=FALSE, out.width="80%", fig.align="center", fig.asp=.75, fig.cap="Priority based Density Distribution", message=FALSE, warning=FALSE}
+```{r gpp-density-distibution-closed-stories-fig, include=TRUE, echo=FALSE, out.width="80%", fig.align="center", fig.asp=.75, fig.cap="Priority based Density Distribution", message=FALSE, warning=FALSE}
 
 stories.closed %>% violin_plot.CycleTimeVsPriority()
 
@@ -164,25 +164,25 @@ stories.closed %>% violin_plot.CycleTimeVsPriority()
 
 ##### Epics 
 
-```{r opics-epics-work-in-progress, include=TRUE, echo=FALSE}
+```{r gpp-epics-work-in-progress, include=TRUE, echo=FALSE}
 tib_epics_work_in_progress <- tib.all %>%
   dplyr::filter(Type == 'Epic') %>% finmetrics::compute.WIP()
 
 ```
 
-```{r opics-epics-work-in-progress-fig , include=TRUE, echo=FALSE, out.width='80%', fig.asp=.75, fig.cap="WiP in Days", fig.align='center', cache=TRUE}
+```{r gpp-epics-work-in-progress-fig , include=TRUE, echo=FALSE, out.width='80%', fig.asp=.75, fig.cap="WiP in Days", fig.align='center', cache=TRUE}
 areaPlot.WiP(tib_epics_work_in_progress)
 ```
 
 ##### Stories
 
-```{r opics-stories-work-in-progress, include=TRUE, echo=FALSE}
+```{r gpp-stories-work-in-progress, include=TRUE, echo=FALSE}
 tib_stories_work_in_progress <- tib.all %>%
   dplyr::filter(Type == 'Story') %>% finmetrics::compute.WIP()
 
 ```
 
-```{r opics-stories-work-in-progress-fig , include=TRUE, echo=FALSE, out.width='80%', fig.asp=.75, fig.cap="WiP in Days", fig.align='center', cache=TRUE}
+```{r gpp-stories-work-in-progress-fig , include=TRUE, echo=FALSE, out.width='80%', fig.asp=.75, fig.cap="WiP in Days", fig.align='center', cache=TRUE}
 areaPlot.WiP(tib_stories_work_in_progress)
 ```
 
@@ -190,31 +190,31 @@ areaPlot.WiP(tib_stories_work_in_progress)
 
 ##### Epics
 
-```{r opics-epics-inflow-outflow, include=TRUE, echo=FALSE, out.width='80%', fig.align="center", fig.asp=.75, eval=TRUE}
+```{r gpp-epics-inflow-outflow, include=TRUE, echo=FALSE, out.width='80%', fig.align="center", fig.asp=.75, eval=TRUE}
 flow.epics.merged <- tib.all %>%
   get.InflowOutflowTibble.Epic(include_priority = TRUE)
  bar_plot.InflowOutflow(flow.epics.merged)
 ```
 
-```{r opics-epics-inflow-outflow-cumsumm, include=TRUE, echo=FALSE, out.width='80%', fig.asp=.75, fig.align="center", eval=TRUE}
+```{r gpp-epics-inflow-outflow-cumsumm, include=TRUE, echo=FALSE, out.width='80%', fig.asp=.75, fig.align="center", eval=TRUE}
 line_plot.InflowOutflow.CumSum(flow.epics.merged)
 ```
 
-```{r opics-epics-inflow-outflow-cumsumm-interactive, include=TRUE, echo=FALSE, out.width='80%', fig.asp=.75, fig.align="center", eval=TRUE}
+```{r gpp-epics-inflow-outflow-cumsumm-interactive, include=TRUE, echo=FALSE, out.width='80%', fig.asp=.75, fig.align="center", eval=TRUE}
 line_plotly.InflowOutflow.CumSum(flow.epics.merged)
 ```
 
-```{r opics-epics-inflow-outflow-datatable, include=TRUE, echo=FALSE, out.width='80%',fig.asp=.75, fig.align="center", eval=TRUE }
+```{r gpp-epics-inflow-outflow-datatable, include=TRUE, echo=FALSE, out.width='80%',fig.asp=.75, fig.align="center", eval=TRUE }
 DT::datatable(flow.epics.merged, filter='top')
 ```
 ##### Stories
 
-```{r opics-stories-inflow-outflow, include=TRUE, echo=FALSE, out.width='80%', fig.asp=.75, fig.align='center',  eval=TRUE}
+```{r gpp-stories-inflow-outflow, include=TRUE, echo=FALSE, out.width='80%', fig.asp=.75, fig.align='center',  eval=TRUE}
 flow.stories.merged <- tib.all %>%
   get.InflowOutflowTibble.Story(include_priority = TRUE)
  bar_plot.InflowOutflow(flow.stories.merged, data_values = TRUE)
 ```
 
-```{r opics-stories-inflow-outflow-cumsumm, out.width='80%', fig.asp=.75, fig.align='center',include=TRUE, echo=FALSE, eval=TRUE}
+```{r gpp-stories-inflow-outflow-cumsumm, out.width='80%', fig.asp=.75, fig.align='center',include=TRUE, echo=FALSE, eval=TRUE}
 line_plot.InflowOutflow.CumSum(flow.stories.merged)
 ```

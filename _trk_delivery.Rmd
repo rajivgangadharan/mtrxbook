@@ -135,16 +135,6 @@ bar_plot.NumClosed_For_FloorDate(
 
 ```
 
-
-<!-- - Density distribution -->
-
-<!-- Gives and indication of the densities especially the occurrence of multiple maxima in the data. This can be due to multiple categories of work items which may be investigated further.  -->
-
-<!-- ```{r trk-density-distibution-closed-epics-fig, include=TRUE, echo=FALSE, out.width="80%", fig.align="center", fig.asp=.75, fig.cap="Priority based Density Distribution", message=FALSE, warning=FALSE} -->
-<!-- epics.closed %>% violin_plot.CycleTimeVsPriority() -->
-<!-- ``` -->
-
-
 #### Stories
 
 
@@ -185,9 +175,9 @@ stories.closed %>% violin_plot.CycleTimeVsPriority()
 
 ### Flow
 
-#### Work in Progress (WiP)
+<!-- #### Work in Progress (WiP) -->
 
-##### Epics 
+<!-- ##### Epics  -->
 
 ```{r trk-epics-work-in-progress, include=TRUE, echo=FALSE}
 tib_epics_work_in_progress <- tib.all %>%
@@ -195,9 +185,9 @@ tib_epics_work_in_progress <- tib.all %>%
 
 ```
 
-```{r trk-epics-work-in-progress-fig , include=TRUE, echo=FALSE, out.width='80%', fig.asp=.75, fig.cap="WiP in Days", fig.align='center', cache=TRUE}
-areaPlot.WiP(tib_epics_work_in_progress)
-```
+<!-- ```{r trk-epics-work-in-progress-fig , include=TRUE, echo=FALSE, out.width='80%', fig.asp=.75, fig.cap="WiP in Days", fig.align='center', cache=TRUE} -->
+<!-- areaPlot.WiP(tib_epics_work_in_progress) -->
+<!-- ``` -->
 
 ##### Stories
 
@@ -207,9 +197,9 @@ tib_stories_work_in_progress <- tib.all %>%
 
 ```
 
-```{r trk-stories-work-in-progress-fig , include=TRUE, echo=FALSE, out.width='80%', fig.asp=.75, fig.cap="WiP in Days", fig.align='center', cache=TRUE}
-areaPlot.WiP(tib_stories_work_in_progress)
-```
+<!-- ```{r trk-stories-work-in-progress-fig , include=TRUE, echo=FALSE, out.width='80%', fig.asp=.75, fig.cap="WiP in Days", fig.align='center', cache=TRUE} -->
+<!-- areaPlot.WiP(tib_stories_work_in_progress) -->
+<!-- ``` -->
 
 #### Inflow/OutFlow
 
@@ -242,4 +232,13 @@ flow.stories.merged <- tib.all %>%
 
 ```{r trk-stories-inflow-outflow-cumsumm, out.width='80%', fig.asp=.75, fig.align='center',include=TRUE, echo=FALSE, eval=TRUE}
 line_plot.InflowOutflow.CumSum(flow.stories.merged)
+```
+
+
+```{r trk-stories-inflow-outflow-cumsumm-interactive, include=TRUE, echo=FALSE, out.width='80%', fig.asp=.75, fig.align="center", eval=TRUE}
+line_plotly.InflowOutflow.CumSum(flow.stories.merged)
+```
+
+```{r trk-stories-inflow-outflow-datatable, include=TRUE, echo=FALSE, out.width='80%',fig.asp=.75, fig.align="center", eval=TRUE }
+DT::datatable(flow.stories.merged, filter='top')
 ```
