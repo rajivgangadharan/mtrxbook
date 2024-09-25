@@ -16,3 +16,6 @@ inst/*
 index.md
 404.html
 libs/
+.venv
+.env
+inst/extdata/*
